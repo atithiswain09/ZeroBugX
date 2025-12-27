@@ -4,7 +4,7 @@ const jwt = require("jsonwebtoken");
 
 const SignUp = async (req, res) => {
   try {
-    // 🔥 FIXED: Changed "name" to "username"
+    
     const { username, email, password } = req.body;
     
    

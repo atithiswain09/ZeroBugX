@@ -1,4 +1,4 @@
-import Navbar from "../pages/Navbar";
+import Navbar from "../components/Navbar";
 // import Logo from "../assets/image1.png";
 
 export default function HomePage() {

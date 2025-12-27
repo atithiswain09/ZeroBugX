@@ -1,13 +1,13 @@
-// import LoginComponent from "./pages/Login";
-// import SignupComponent from "./pages/Signin";
-// import { Routes, Route } from "react-router-dom";
-// import Navbar from "./pages/Navbar";
-// import HomePage from "./pages/Home";
- import RevivePage from "../src/pages/RevivePage"
+import LoginComponent from "./pages/Login";
+import SignupComponent from "./pages/Signin";
+import { Routes, Route } from "react-router-dom";
+import Navbar from "./components/Navbar";
+import HomePage from "./pages/Home";
+  //     import RevivePage from "../src/pages/RevivePage"
 function App() {
   return (
-    <div className="flex"> 
-      {/* <Routes>
+    <div>
+      <Routes>
         <Route path="/" element={<LoginComponent />} />
         <Route path="/signup" element={<SignupComponent />} />
         <Route path="/login" element={<LoginComponent />} />
@@ -20,10 +20,9 @@ function App() {
             </>
           }
         />
-      </Routes> */}
+      </Routes>
 
-       <RevivePage/>
-      
+      {/* <RevivePage /> */}
     </div>
   );
 }

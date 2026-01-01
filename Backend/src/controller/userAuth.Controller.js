@@ -33,7 +33,7 @@ const SignUp = async (req, res) => {
 
     // Create user - FIXED: Changed "name" to "username"
     const user = await User.create({
-      username,  // ✅ Changed from "name"
+      username,  
       email,
       password: hashedPassword,
     });
@@ -41,7 +41,7 @@ const SignUp = async (req, res) => {
     // Remove password from response - FIXED: Changed "name" to "username"
     const userResponse = {
       _id: user._id,
-      username: user.username,  // ✅ Changed from "name"
+      username: user.username,  
       email: user.email,
     };
 
@@ -106,7 +106,7 @@ const Login = async (req, res) => {
     // Send response - FIXED: Changed "name" to "username"
     return res.status(200).json({
       success: true,
-      message: `Welcome back ${CheckUser.username}`,  // ✅ Changed from "name"
+      message: `Welcome back ${CheckUser.username}`,  
       user: {
         _id: CheckUser._id,
         username: CheckUser.username,  // ✅ Changed from "name"

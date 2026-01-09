@@ -23,8 +23,7 @@ export default function CodeEditor({
   }
 
   return (
-    <div className="flex-1 flex flex-col bg-[#0B0F16] text-white rounded-2xl p-4 border border-[#0F172A] shadow-xl cursor-pointer">
-
+    <div className="flex-1 h-80vh flex flex-col bg-[#0B0F16] text-white rounded-2xl p-4 border border-[#0F172A] shadow-xl cursor-pointer">
       {/* Header (Title + Copy Button) */}
       <div className="flex items-center justify-between mb-3 cursor-pointer">
         <h3 className="text-base font-semibold text-[#22C55E] cursor-pointer">
@@ -48,7 +47,7 @@ export default function CodeEditor({
         onKeyDown={handleTab}
         placeholder="Write your code here..."
         style={{ height }}
-        className="w-full h-[80%] bg-[#0D1117] text-[#22C55E] font-mono text-sm p-4 rounded-xl border border-[#1E293B]
+        className="w-full h-80vh bg-[#0D1117] text-[#22C55E] font-mono text-sm p-4 rounded-xl border border-[#1E293B]
         resize-none outline-none focus:border-[#22C55E] focus:ring-2 focus:ring-[#22C55E]/40 transition cursor-pointer"
       />
     </div>

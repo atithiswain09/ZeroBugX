@@ -8,7 +8,8 @@
         });
     }
     const prompt=data.prompt;
-    const response=await aiservices(prompt,);
+    const code=data.code;
+    const response=await aiservices(prompt,code);
     res.status(201).json({
         message:"It`s Your Prompt!!",response
     })

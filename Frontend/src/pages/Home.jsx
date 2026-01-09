@@ -1,7 +1,13 @@
 import Navbar from "../components/Navbar";
 // import Logo from "../assets/image1.png";
-
+import { useNavigate } from 'react-router-dom';
+import RevivePage from "./RevivePage";
 export default function HomePage() {
+  const navigate=useNavigate();
+  function RevieWIngPage(){
+    
+      navigate('/reviwe');
+  }
   return (
     <>
       <Navbar />
@@ -15,8 +21,6 @@ export default function HomePage() {
         "
       >
         <div className="max-w-4xl text-center text-[#f2f2f2]">
-
-          {/* ---------- Title ---------- */}
           <h1
             className="
               text-4xl md:text-6xl font-extrabold 
@@ -30,15 +34,13 @@ export default function HomePage() {
             </span>{" "}
             &
             <br />
-             BugDetector
+            BugDetector
           </h1>
 
           {/* ---------- Subtitle ---------- */}
           <p className="mt-4 text-xl md:text-2xl font-light opacity-90 leading-relaxed">
             Improve Your Code Quality Using{" "}
-            <span className="text-green-400 font-bold">
-              ZeroBugX
-            </span>
+            <span className="text-green-400 font-bold">ZeroBugX</span>
           </p>
 
           <p className="mt-1 text-lg md:text-xl opacity-70 tracking-wide">
@@ -59,10 +61,9 @@ export default function HomePage() {
               hover:shadow-xl 
               hover:scale-105
             "
-          >
+           onClick={RevieWIngPage}>
             Start ReviewIng
           </button>
-
         </div>
       </div>
     </>

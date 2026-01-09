@@ -24,6 +24,6 @@ app.use(cookieParser());
 
 
 app.use("/api/V1/auth", AuthRouter);
-app.use("/ai",ai)
+app.use("/api/V1/ai",ai)
 
 module.exports = app;

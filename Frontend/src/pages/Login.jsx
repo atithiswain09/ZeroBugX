@@ -5,10 +5,11 @@ import gsap from "gsap";
 import { loginAPI } from "../api/Auth.api";
 import toast, { Toaster } from "react-hot-toast";
 import { Eye, EyeOff } from "lucide-react";
-
+import { AuthContext } from "../context/AuthContext";
+import { useContext } from "react";
 export default function LoginComponent() {
   const navigate = useNavigate();
-
+   const {setUser,setIsAuth}=useContext(AuthContext);
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -50,14 +51,16 @@ export default function LoginComponent() {
 
     try {
       const res = await loginAPI(formData);
-      const { token, user } = res.data;
 
+      const { token, user } = res.data;
+      
       // Store token & user details
       localStorage.setItem("token", token);
       localStorage.setItem("user", JSON.stringify(user));
 
       toast.success("Login Successful!");
-
+         setUser(user)
+         setIsAuth(true)
       // Clear form
       setFormData({
         email: "",
@@ -65,8 +68,10 @@ export default function LoginComponent() {
       });
 
       // Navigate to home page
-      navigate("/home");
+      navigate("/reviwe");
     } catch (error) {
+      setUser(null);
+      setIsAuth(false);
       console.log(error);
       toast.error(error.response?.data?.message || "Login failed!");
     }
@@ -74,7 +79,7 @@ export default function LoginComponent() {
 
   return (
     <div className="min-h-screen bg-[#0B0F17] flex items-center justify-center px-4">
-      {/* 🔥 TOASTIFY */}
+      {/*  TOASTIFY */}
       <Toaster
         position="top-center"
         toastOptions={{

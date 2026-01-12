@@ -3,9 +3,41 @@ import SignupComponent from "./pages/Signin";
 import { Routes, Route } from "react-router-dom";
 import Navbar from "./components/Navbar";
 import HomePage from "./pages/Home";
+import { AuthContext } from "./context/AuthContext";
 import RevivePage from "../src/pages/RevivePage";
 import ProtectedRoute from "./components/ProtectedRoute";
+import { useEffect } from "react";
+import { useCallback } from "react";
+import { useContext } from "react";
+import { checkAuthAPI } from "./api/Auth.api";
 function App() {
+     const{setUser,setIsAuth}=useContext(AuthContext)
+   const cheackauth=useCallback(async()=>{
+           try{
+          const {data}=await checkAuthAPI();
+           console.log(data);
+           
+           if(!data.user){
+              setUser(null);
+              setIsAuth(false);
+              return;
+           }
+           setUser(data.user);
+           setIsAuth(true);
+           
+          
+           }catch(e){
+            setUser(null);
+            setIsAuth(false);
+            console.error(e);
+           }
+   },[setUser,setIsAuth])
+   useEffect(() => {
+     cheackauth();
+  }, [cheackauth]);
+  
+
+   
   return (
     <div>
       {

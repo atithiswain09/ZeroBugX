@@ -1,7 +1,7 @@
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-
-export default function AiResponse({ data }) {
+import { PacmanLoader } from "react-spinners"
+export default function AiResponse({ data,loding }) {
       console.log(data)
   return (
     <div className="w-[28%] h-80vh bg-[#070c14] rounded-2xl border border-green-500/20 p-4 shadow-inner">
@@ -16,7 +16,7 @@ export default function AiResponse({ data }) {
           Review came from AI
         </p>
 
-        {data?.response && (
+        {!loding?data?.response&& (
           <div className="prose prose-invert reset-tailwind max-w-none text-white">
             <ReactMarkdown remarkPlugins={[remarkGfm]}>
               {data.response}
@@ -24,7 +24,7 @@ export default function AiResponse({ data }) {
              
           </div>
           
-        ) }
+        ):<PacmanLoader color="green"  className="mt-2 "/> }
           {/* { <ReactMarkdown remarkPlugins={[remarkGfm]}>
               {Markdown}
             </ReactMarkdown>} */}

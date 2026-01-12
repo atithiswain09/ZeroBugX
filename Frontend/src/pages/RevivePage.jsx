@@ -8,9 +8,12 @@ export default function RevivePage() {
   const [code, setcode] = useState("");
   const [prompt, setprompt] = useState("");
   const [data, setdata] = useState();
+  const [loding,setloding]=useState(false);
   const Onsend = async () => {
+    setloding(true);
     const data = await sendPrompt({ prompt, code });
     setdata(data);
+    setloding(false);
   };
 
   return (
@@ -19,7 +22,7 @@ export default function RevivePage() {
       <div className="gap-10 w-full flex">
         <Sidebar prompt={prompt} onPromptChange={setprompt} onSend={Onsend} />
         <CodeEditor code={code} onCodeChange={setcode} />
-        <Response data={data} />
+        <Response data={data} loding={loding} />
       </div>
     </div>
   );

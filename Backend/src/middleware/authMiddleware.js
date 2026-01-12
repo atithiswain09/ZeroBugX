@@ -5,17 +5,25 @@ const AuthMiddleware = async (req, res, next) => {
   try {
     console.log(req.cookies)
     const token = req.cookies.token;
-    
+       
+
     if (!token) {
-      res.status(401).json({
+     return res.status(401).json({
         message: "unauthorized user!!",
       });
     }
     const decode = jwt.verify(token, process.env.JWT_SECRET);
     const user = await userModel.findOne({
-      _id: decode.id,
+      _id: decode.userId,
     });
+     if(!user){
+     return res.status(404).json({
+        message:"User not_found!!!"
+      })
+     }
+
     req.user = user;
+    
     next();
   } catch (err) {
     console.error("Unothorise !! ,Login Again!!");

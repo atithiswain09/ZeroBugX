@@ -109,7 +109,7 @@ const Login = async (req, res) => {
       message: `Welcome back ${CheckUser.username}`,  
       user: {
         _id: CheckUser._id,
-        username: CheckUser.username,  // ✅ Changed from "name"
+        username: CheckUser.username, 
         email: CheckUser.email,
       },
     });
@@ -138,4 +138,18 @@ const LogOut = (req, res) => {
   }
 };
 
-module.exports = { SignUp, Login, LogOut };
+
+const checkAuth = (req, res) => {
+    console.log(req.user)
+  res.status(200).json({
+    success: true,
+    message: "User authenticated",
+     user: {
+        _id: req.user._id,
+        username: req.user.username, 
+        email: req.user.email,
+      },
+  });
+};
+
+module.exports = { SignUp, Login, LogOut,checkAuth };

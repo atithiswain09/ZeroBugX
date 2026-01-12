@@ -11,9 +11,11 @@ import { useCallback } from "react";
 import { useContext } from "react";
 import { checkAuthAPI } from "./api/Auth.api";
 function App() {
-     const{setUser,setIsAuth}=useContext(AuthContext)
+   
+     const{setUser,setIsAuth,setappLoaded}=useContext(AuthContext)
    const cheackauth=useCallback(async()=>{
            try{
+            setappLoaded(false)
           const {data}=await checkAuthAPI();
            console.log(data);
            
@@ -25,21 +27,23 @@ function App() {
            setUser(data.user);
            setIsAuth(true);
            
+           
           
            }catch(e){
             setUser(null);
             setIsAuth(false);
             console.error(e);
+           }finally{
+               setappLoaded(true)
            }
-   },[setUser,setIsAuth])
+   },[setUser,setIsAuth,setappLoaded])
    useEffect(() => {
      cheackauth();
   }, [cheackauth]);
   
 
-   
   return (
-    <div>
+    <>
       {
         <Routes>
           <Route path="/signup" element={<SignupComponent />} />
@@ -63,7 +67,7 @@ function App() {
           ></Route>
         </Routes>
       }
-    </div>
+    </>
   );
 }
 

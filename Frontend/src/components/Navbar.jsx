@@ -2,10 +2,18 @@ import React, { useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import Logo from "../assets/zerobugx.png";
 import gsap from "gsap";
+import { useContext } from "react";
+import { AuthContext } from "../context/AuthContext";
+import { logoutAPI } from "../api/Auth.api";
+
+
+
+
 
 function Navbar() {
   const logoRef = useRef(null);
   const titleRef = useRef(null);
+ const { setUser, setIsAuth } = useContext(AuthContext);
 
   useEffect(() => {
     gsap.from([logoRef.current, titleRef.current], {
@@ -16,6 +24,17 @@ function Navbar() {
       ease: "power3.out",
     });
   }, []);
+
+  const handleLogout = async () => {
+  try {
+    await logoutAPI();       
+    setUser(null);           
+    setIsAuth(false);        
+    window.location.href = "/login";
+  } catch (error) {
+    console.log("Logout failed", error);
+  }
+};
 
   return (
     <div className="fixed top-0 left-0 w-full bg-[#0B0F17]/90 backdrop-blur-md border-b border-gray-800 flex items-center justify-between px-8 py-5 shadow-lg z-50">
@@ -35,7 +54,7 @@ function Navbar() {
         <Link to="/profile">Profile</Link>
       </div>
       </div>
-      <button className="bg-green-500 px-4 py-2 cursor-pointer rounded-lg hover:bg-green-400">
+      <button onClick={handleLogout} className="bg-green-500 px-4 py-2 cursor-pointer rounded-lg hover:bg-green-400">
         Logout
       </button>
     </div>

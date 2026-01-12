@@ -2,6 +2,8 @@ import Sidebar from "../components/Sidebar";
 import CodeEditor from "../components/CodeEditor";
 import Response from "../components/Responce";
 import Navbar from "../components/Navbar";
+
+import { AuthContext } from "../context/AuthContext";
 import { useState } from "react";
 import { sendPrompt } from "../api/Ai.api";
 export default function RevivePage() {
@@ -15,9 +17,10 @@ export default function RevivePage() {
     setdata(data);
     setloding(false);
   };
+  
 
   return (
-    <div className="bg-black w-full flex p-10 mt-20">
+    <div className="bg-black w-full h-screen flex p-10 mt-20">
       <Navbar />
       <div className="gap-10 w-full flex">
         <Sidebar prompt={prompt} onPromptChange={setprompt} onSend={Onsend} />

@@ -6,10 +6,8 @@ export default function Sidebar({
   return (
     <div className="
       w-full 
-      lg:w-72 
-      xl:w-80
-      min-h-[250px]
-      lg:h-screen 
+      lg:w-80
+      lg:h-full
       rounded-2xl 
       lg:rounded-none
       lg:rounded-l-2xl

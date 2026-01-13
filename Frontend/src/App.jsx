@@ -11,36 +11,31 @@ import { useCallback } from "react";
 import { useContext } from "react";
 import { checkAuthAPI } from "./api/Auth.api";
 function App() {
-   
-     const{setUser,setIsAuth,setappLoaded}=useContext(AuthContext)
-   const cheackauth=useCallback(async()=>{
-           try{
-            setappLoaded(false)
-          const {data}=await checkAuthAPI();
-           console.log(data);
-           
-           if(!data.user){
-              setUser(null);
-              setIsAuth(false);
-              return;
-           }
-           setUser(data.user);
-           setIsAuth(true);
-           
-           
-          
-           }catch(e){
-            setUser(null);
-            setIsAuth(false);
-            console.error(e);
-           }finally{
-               setappLoaded(true)
-           }
-   },[setUser,setIsAuth,setappLoaded])
-   useEffect(() => {
-     cheackauth();
+  const { setUser, setIsAuth, setappLoaded } = useContext(AuthContext);
+  const cheackauth = useCallback(async () => {
+    try {
+      setappLoaded(false);
+      const { data } = await checkAuthAPI();
+      console.log(data);
+
+      if (!data.user) {
+        setUser(null);
+        setIsAuth(false);
+        return;
+      }
+      setUser(data.user);
+      setIsAuth(true);
+    } catch  {
+      setUser(null);
+      setIsAuth(false);
+      
+    } finally {
+      setappLoaded(true);
+    }
+  }, [setUser, setIsAuth, setappLoaded]);
+  useEffect(() => {
+    cheackauth();
   }, [cheackauth]);
-  
 
   return (
     <>

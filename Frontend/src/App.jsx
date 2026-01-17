@@ -3,6 +3,7 @@ import SignupComponent from "./pages/Signin";
 import { Routes, Route } from "react-router-dom";
 import Navbar from "./components/Navbar";
 import HomePage from "./pages/Home";
+import NotFound from "./pages/NotFound";
 import { AuthContext } from "./context/AuthContext";
 import RevivePage from "../src/pages/RevivePage";
 import ProtectedRoute from "./components/ProtectedRoute";
@@ -25,10 +26,9 @@ function App() {
       }
       setUser(data.user);
       setIsAuth(true);
-    } catch  {
+    } catch {
       setUser(null);
       setIsAuth(false);
-      
     } finally {
       setappLoaded(true);
     }
@@ -52,6 +52,7 @@ function App() {
               </>
             }
           />
+          <Route path="/profile" element={<NotFound />} />
           <Route
             path="/reviwe"
             element={

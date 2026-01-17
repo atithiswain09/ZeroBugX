@@ -15,7 +15,7 @@ export default function HomePage() {
     }, 1000);
   }
 
-  // 🔥 THIS IS THE MAGIC
+  
   if (loading) {
     return <Spinner />;
   }
@@ -28,7 +28,7 @@ export default function HomePage() {
         <div className="max-w-4xl text-center text-[#f2f2f2]">
           <h1 className="text-4xl md:text-6xl font-extrabold">
             AI-Powered{" "}
-            <span className="bg-gradient-to-r from-green-400 to-green-500 bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-green-400 to-green-400 bg-clip-text text-transparent">
               Code Reviewer
             </span>
             <br />

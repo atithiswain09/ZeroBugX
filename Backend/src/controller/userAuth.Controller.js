@@ -4,11 +4,8 @@ const jwt = require("jsonwebtoken");
 
 const SignUp = async (req, res) => {
   try {
-    
     const { username, email, password } = req.body;
-    
-   
-    // Validate input - FIXED: Changed "name" to "username"
+
     if (!username || !email || !password) {
       return res.status(400).json({
         success: false,
@@ -16,46 +13,51 @@ const SignUp = async (req, res) => {
       });
     }
 
-    // Check if user already exists by email OR username
-    const ExistingUser = await User.findOne({
-      $or: [{ email }, { username }]
+    const existingUser = await User.findOne({
+      $or: [{ email }, { username }],
     });
-    
-    if (ExistingUser) {
+
+    if (existingUser) {
       return res.status(409).json({
         success: false,
         message: "User already exists!",
       });
     }
 
-    // Hash password
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Create user - FIXED: Changed "name" to "username"
     const user = await User.create({
-      username,  
+      username,
       email,
       password: hashedPassword,
     });
 
-    // Remove password from response - FIXED: Changed "name" to "username"
-    const userResponse = {
-      _id: user._id,
-      username: user.username,  
-      email: user.email,
-    };
+    const token = jwt.sign(
+      { userId: user._id, email: user.email },
+      process.env.JWT_SECRET,
+      { expiresIn: "1d" }
+    );
 
-    res.status(201).json({
-      success: true,
-      message: "User created successfully!",
-      user: userResponse,
+    res.cookie("token", token, {
+      httpOnly: true,
+      sameSite: "strict",
+      maxAge: 24 * 60 * 60 * 1000,
     });
-  } catch (e) {
-    console.error("SignUp Error:", e);
-    res.status(500).json({
+
+    return res.status(201).json({
+      success: true,
+      message: "User created successfully",
+      user: {
+        _id: user._id,
+        username: user.username,
+        email: user.email,
+      },
+    });
+  } catch (error) {
+    return res.status(500).json({
       success: false,
       message: "Internal Server Error",
-      error: e.message,
+      error: error.message,
     });
   }
 };
@@ -64,7 +66,6 @@ const Login = async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    // Validate input
     if (!email || !password) {
       return res.status(400).json({
         success: false,
@@ -72,16 +73,17 @@ const Login = async (req, res) => {
       });
     }
 
-    const CheckUser = await User.findOne({ email });
-    if (!CheckUser) {
+    const user = await User.findOne({ email });
+
+    if (!user) {
       return res.status(404).json({
         success: false,
         message: "User not found",
       });
     }
 
-    // Verify password
-    const isMatch = await bcrypt.compare(password, CheckUser.password);
+    const isMatch = await bcrypt.compare(password, user.password);
+
     if (!isMatch) {
       return res.status(401).json({
         success: false,
@@ -89,32 +91,28 @@ const Login = async (req, res) => {
       });
     }
 
-    // Generate JWT token
     const token = jwt.sign(
-      { userId: CheckUser._id, email: CheckUser.email },
+      { userId: user._id, email: user.email },
       process.env.JWT_SECRET,
       { expiresIn: "1d" }
     );
 
-    // Set cookie
     res.cookie("token", token, {
       httpOnly: true,
       sameSite: "strict",
-      maxAge: 24 * 60 * 60 * 1000, // 1 day
+      maxAge: 24 * 60 * 60 * 1000,
     });
 
-    // Send response - FIXED: Changed "name" to "username"
     return res.status(200).json({
       success: true,
-      message: `Welcome back ${CheckUser.username}`,  
+      message: `Welcome back ${user.username}`,
       user: {
-        _id: CheckUser._id,
-        username: CheckUser.username, 
-        email: CheckUser.email,
+        _id: user._id,
+        username: user.username,
+        email: user.email,
       },
     });
   } catch (error) {
-    console.error("Login Error:", error);
     return res.status(500).json({
       success: false,
       message: "Internal Server Error",
@@ -130,7 +128,7 @@ const LogOut = (req, res) => {
       success: true,
       message: "Logged out successfully",
     });
-  } catch (e) {
+  } catch (error) {
     return res.status(500).json({
       success: false,
       message: "Error logging out",
@@ -138,18 +136,21 @@ const LogOut = (req, res) => {
   }
 };
 
-
 const checkAuth = (req, res) => {
-    console.log(req.user)
-  res.status(200).json({
+  return res.status(200).json({
     success: true,
     message: "User authenticated",
-     user: {
-        _id: req.user._id,
-        username: req.user.username, 
-        email: req.user.email,
-      },
+    user: {
+      _id: req.user._id,
+      username: req.user.username,
+      email: req.user.email,
+    },
   });
 };
 
-module.exports = { SignUp, Login, LogOut,checkAuth };
+module.exports = {
+  SignUp,
+  Login,
+  LogOut,
+  checkAuth,
+};

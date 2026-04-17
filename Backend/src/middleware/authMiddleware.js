@@ -1,35 +1,54 @@
 const jwt = require("jsonwebtoken");
 const userModel = require("../models/userAuth.model");
 
+/**
+ * Authentication middleware.
+ * Verifies JWT from httpOnly cookie and attaches user to request.
+ */
 const AuthMiddleware = async (req, res, next) => {
   try {
-    console.log(req.cookies)
     const token = req.cookies.token;
-       
 
     if (!token) {
-     return res.status(401).json({
-        message: "unauthorized user!!",
+      return res.status(401).json({
+        success: false,
+        message: "Authentication required. Please log in.",
       });
     }
-    const decode = jwt.verify(token, process.env.JWT_SECRET);
-    const user = await userModel.findOne({
-      _id: decode.userId,
-    });
-     if(!user){
-     return res.status(404).json({
-        message:"User not_found!!!"
-      })
-     }
+
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+    const user = await userModel.findById(decoded.userId).select("-password");
+
+    if (!user) {
+      return res.status(401).json({
+        success: false,
+        message: "User account not found. Please sign up again.",
+      });
+    }
 
     req.user = user;
-    
     next();
   } catch (err) {
-    console.error("Unothorise !! ,Login Again!!");
-    return res.status(401).json({
-      message: "Inavalid Token,pleass Login Again!!!",
-      err,
+    // Differentiate between token expiration and other errors
+    if (err.name === "TokenExpiredError") {
+      return res.status(401).json({
+        success: false,
+        message: "Session expired. Please log in again.",
+      });
+    }
+
+    if (err.name === "JsonWebTokenError") {
+      return res.status(401).json({
+        success: false,
+        message: "Invalid session. Please log in again.",
+      });
+    }
+
+    console.error("[AuthMiddleware] Unexpected error:", err.message);
+    return res.status(500).json({
+      success: false,
+      message: "Authentication error. Please try again.",
     });
   }
 };

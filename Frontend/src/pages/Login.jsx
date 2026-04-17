@@ -1,175 +1,267 @@
-import React, { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useContext } from "react";
 import Logo from "../assets/zerobugx.png";
 import { Link, useNavigate } from "react-router-dom";
 import gsap from "gsap";
 import { loginAPI } from "../api/Auth.api";
-import toast, { Toaster } from "react-hot-toast";
-import { Eye, EyeOff } from "lucide-react";
+import toast from "react-hot-toast";
+import { Eye, EyeOff, Mail, Lock, ArrowRight, Loader2 } from "lucide-react";
 import { AuthContext } from "../context/AuthContext";
-import { useContext } from "react";
+
 export default function LoginComponent() {
   const navigate = useNavigate();
-   const {setUser,setIsAuth}=useContext(AuthContext);
+  const { login, isAuth } = useContext(AuthContext);
+
   const [formData, setFormData] = useState({
     email: "",
     password: "",
   });
-
+  const [errors, setErrors] = useState({});
   const [showPassword, setShowPassword] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const boxRef = useRef(null);
-  const titleRef = useRef(null);
+  const containerRef = useRef(null);
+  const cardRef = useRef(null);
 
+  // Redirect if already authenticated
   useEffect(() => {
-    gsap.from(boxRef.current, {
-      opacity: 0,
-      scale: 0.8,
-      duration: 0.8,
-      ease: "power3.out",
-    });
+    if (isAuth) navigate("/review", { replace: true });
+  }, [isAuth, navigate]);
 
-    gsap.from(titleRef.current, {
-      opacity: 0,
-      y: -40,
-      duration: 1.1,
-      delay: 0.4,
-      ease: "power3.out",
-    });
+  // Entry animation
+  useEffect(() => {
+    const ctx = gsap.context(() => {
+      gsap.from(cardRef.current, {
+        opacity: 0,
+        y: 30,
+        scale: 0.96,
+        duration: 0.7,
+        ease: "power3.out",
+      });
+    }, containerRef);
+    return () => ctx.revert();
   }, []);
 
+  const validateField = (name, value) => {
+    switch (name) {
+      case "email":
+        if (!value) return "Email is required";
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value))
+          return "Enter a valid email address";
+        return "";
+      case "password":
+        if (!value) return "Password is required";
+        if (value.length < 8) return "Password must be at least 8 characters";
+        return "";
+      default:
+        return "";
+    }
+  };
+
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+
+    // Clear error when user starts typing
+    if (errors[name]) {
+      setErrors((prev) => ({ ...prev, [name]: "" }));
+    }
+  };
+
+  const handleBlur = (e) => {
+    const { name, value } = e.target;
+    const error = validateField(name, value);
+    if (error) setErrors((prev) => ({ ...prev, [name]: error }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!formData.email || !formData.password) {
-      toast.error("All fields are required!");
+    // Validate all fields
+    const newErrors = {};
+    Object.keys(formData).forEach((key) => {
+      const error = validateField(key, formData[key]);
+      if (error) newErrors[key] = error;
+    });
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      toast.error("Please fix the errors below.");
       return;
     }
 
+    setIsSubmitting(true);
     try {
       const res = await loginAPI(formData);
+      const { user } = res.data;
 
-      const { token, user } = res.data;
-      
-      // Store token & user details
-      localStorage.setItem("token", token);
-      localStorage.setItem("user", JSON.stringify(user));
+      login(user);
+      toast.success(res.data.message || "Login successful!");
 
-      toast.success("Login Successful!");
-         setUser(user)
-         setIsAuth(true)
-      // Clear form
-      setFormData({
-        email: "",
-        password: "",
-      });
-
-      // Navigate to home page
-      navigate("/reviwe");
+      setFormData({ email: "", password: "" });
+      navigate("/review");
     } catch (error) {
-      setUser(null);
-      setIsAuth(false);
-      console.log(error);
-      toast.error(error.response?.data?.message || "Login failed!");
+      const msg = error.response?.data?.message || "Login failed. Please try again.";
+      toast.error(msg);
+
+      // Show field-level errors from validation
+      if (error.response?.data?.errors) {
+        const fieldErrors = {};
+        error.response.data.errors.forEach((err) => {
+          fieldErrors[err.field] = err.message;
+        });
+        setErrors(fieldErrors);
+      }
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-[#0B0F17] flex items-center justify-center px-4">
-      {/*  TOASTIFY */}
-      <Toaster
-        position="top-center"
-        toastOptions={{
-          style: {
-            fontSize: "16px",
-            padding: "12px 18px",
-            borderRadius: "10px",
-            background: "#1F2937",
-            color: "#fff",
-            border: "1px solid #4ADE80",
-          },
-          success: {
-            iconTheme: {
-              primary: "#4ADE80",
-              secondary: "#1F2937",
-            },
-          },
-          error: {
-            iconTheme: {
-              primary: "#F87171",
-              secondary: "#1F2937",
-            },
-          },
-        }}
-      />
+    <div
+      ref={containerRef}
+      className="min-h-screen bg-[var(--color-bg-primary)] flex items-center justify-center px-4 py-8"
+    >
+      {/* Background gradient orbs */}
+      <div className="fixed inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-[var(--color-accent)]/5 rounded-full blur-[100px]" />
+        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-[var(--color-indigo)]/5 rounded-full blur-[100px]" />
+      </div>
 
       <div
-        ref={boxRef}
-        className="bg-[#111827] w-full max-w-md p-8 rounded-xl shadow-xl"
+        ref={cardRef}
+        className="relative w-full max-w-[420px] p-8 rounded-2xl glass shadow-xl"
+        style={{ boxShadow: "var(--shadow-xl)" }}
       >
-        <div className="flex flex-col items-center mb-6">
-          <img
-            src={Logo}
-            alt="ZeroBugX"
-            className="h-24 w-24 rounded-lg mb-2"
-          />
-          <h1 ref={titleRef} className="text-3xl font-bold text-green-400">
-            ZeroBugX
+        {/* Logo & Title */}
+        <div className="flex flex-col items-center mb-8">
+          <div className="w-16 h-16 rounded-2xl overflow-hidden mb-4 ring-2 ring-[var(--color-accent)]/20 shadow-lg animate-float">
+            <img
+              src={Logo}
+              alt="ZeroBugX"
+              className="w-full h-full object-cover"
+            />
+          </div>
+          <h1 className="text-2xl font-bold gradient-text tracking-tight">
+            Welcome Back
           </h1>
-          <p className="text-gray-400 text-sm mt-1">Login to continue</p>
+          <p className="text-[var(--color-text-muted)] text-sm mt-1">
+            Sign in to your ZeroBugX account
+          </p>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4 text-white">
-          <input
-            type="email"
-            name="email"
-            placeholder="Enter email"
-            value={formData.email}
-            onChange={handleChange}
-            className="w-full bg-[#0d131e] border border-gray-700 rounded-lg px-4 py-2 focus:border-green-400 outline-none text-green-400"
-          />
-
-          <div className="relative w-full">
-            <input
-              type={showPassword ? "text" : "password"}
-              name="password"
-              placeholder="Enter password"
-              value={formData.password}
-              onChange={handleChange}
-              className="w-full bg-[#0d131e] border border-gray-700 rounded-lg px-4 py-2 focus:border-green-400 outline-none text-green-400"
-            />
-
-            <button
-              type="button"
-              onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-3 top-2.5 text-gray-400 hover:text-green-400"
+        {/* Form */}
+        <form onSubmit={handleSubmit} className="space-y-5" noValidate>
+          {/* Email Field */}
+          <div>
+            <label
+              htmlFor="login-email"
+              className="block text-xs font-medium text-[var(--color-text-secondary)] mb-1.5"
             >
-              {showPassword ? <EyeOff size={22} /> : <Eye size={22} />}
-            </button>
+              Email Address
+            </label>
+            <div className="relative">
+              <Mail
+                size={16}
+                className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[var(--color-text-muted)]"
+              />
+              <input
+                id="login-email"
+                type="email"
+                name="email"
+                placeholder="you@example.com"
+                value={formData.email}
+                onChange={handleChange}
+                onBlur={handleBlur}
+                autoComplete="email"
+                className={`w-full bg-[var(--color-bg-input)] border rounded-xl pl-10 pr-4 py-3 text-sm text-[var(--color-text-primary)] placeholder:text-[var(--color-text-disabled)] outline-none transition-all duration-200 focus:ring-2 ${
+                  errors.email
+                    ? "border-[var(--color-danger)] focus:ring-[var(--color-danger)]/30"
+                    : "border-[var(--color-border-subtle)] focus:border-[var(--color-accent)] focus:ring-[var(--color-accent)]/20"
+                }`}
+              />
+            </div>
+            {errors.email && (
+              <p className="text-[var(--color-danger)] text-xs mt-1.5 animate-fade-in">
+                {errors.email}
+              </p>
+            )}
           </div>
 
+          {/* Password Field */}
+          <div>
+            <label
+              htmlFor="login-password"
+              className="block text-xs font-medium text-[var(--color-text-secondary)] mb-1.5"
+            >
+              Password
+            </label>
+            <div className="relative">
+              <Lock
+                size={16}
+                className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[var(--color-text-muted)]"
+              />
+              <input
+                id="login-password"
+                type={showPassword ? "text" : "password"}
+                name="password"
+                placeholder="Enter your password"
+                value={formData.password}
+                onChange={handleChange}
+                onBlur={handleBlur}
+                autoComplete="current-password"
+                className={`w-full bg-[var(--color-bg-input)] border rounded-xl pl-10 pr-12 py-3 text-sm text-[var(--color-text-primary)] placeholder:text-[var(--color-text-disabled)] outline-none transition-all duration-200 focus:ring-2 ${
+                  errors.password
+                    ? "border-[var(--color-danger)] focus:ring-[var(--color-danger)]/30"
+                    : "border-[var(--color-border-subtle)] focus:border-[var(--color-accent)] focus:ring-[var(--color-accent)]/20"
+                }`}
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3.5 top-1/2 -translate-y-1/2 text-[var(--color-text-muted)] hover:text-[var(--color-accent)] transition-colors"
+                aria-label={showPassword ? "Hide password" : "Show password"}
+              >
+                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+              </button>
+            </div>
+            {errors.password && (
+              <p className="text-[var(--color-danger)] text-xs mt-1.5 animate-fade-in">
+                {errors.password}
+              </p>
+            )}
+          </div>
+
+          {/* Submit Button */}
           <button
             type="submit"
-            className="w-full py-2 bg-green-500 cursor-pointer rounded-lg font-semibold text-white hover:bg-green-600 mt-3"
+            disabled={isSubmitting}
+            className="w-full py-3 bg-[var(--color-accent)] hover:bg-[var(--color-accent-hover)] text-white rounded-xl font-semibold text-sm shadow-lg shadow-[var(--color-accent)]/20 transition-all duration-200 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 cursor-pointer"
           >
-            Login
+            {isSubmitting ? (
+              <>
+                <Loader2 size={18} className="animate-spin" />
+                <span>Signing in...</span>
+              </>
+            ) : (
+              <>
+                <span>Sign In</span>
+                <ArrowRight size={18} />
+              </>
+            )}
           </button>
         </form>
 
-        <p className="text-center text-gray-400 text-sm mt-4">
-          Don't have an account?
+        {/* Footer */}
+        <p className="text-center text-[var(--color-text-muted)] text-sm mt-6">
+          Don&apos;t have an account?{" "}
           <Link
             to="/signup"
-            className="text-green-400 ml-1 hover:text-green-300"
+            className="text-[var(--color-accent)] hover:text-[var(--color-accent-hover)] font-medium transition-colors"
           >
-            Sign Up
+            Create one
           </Link>
         </p>
       </div>
     </div>
   );
 }
- 

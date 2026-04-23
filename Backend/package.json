@@ -1,4 +1,8 @@
 {
+  "scripts": {
+    "dev": "nodemon Server.js",
+    "start": "node Server.js"
+  },
   "dependencies": {
     "@google/genai": "^1.33.0",
     "bcrypt": "^6.0.0",

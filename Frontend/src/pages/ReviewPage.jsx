@@ -33,20 +33,29 @@ export default function ReviewPage() {
   };
 
   return (
-    <div className="bg-[var(--color-bg-primary)] w-full h-screen flex flex-col font-sans overflow-hidden selection:bg-[var(--color-indigo)]/30">
-      <Navbar />
+    <div className="relative w-full h-screen flex flex-col font-sans overflow-hidden selection:bg-[var(--color-indigo)]/30 bg-[var(--color-bg-primary)]">
+      {/* Background Effects */}
+      <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
+        <div className="absolute -top-[15%] -left-[10%] w-[50%] h-[50%] rounded-full bg-[var(--color-indigo)]/10 blur-[120px] animate-pulse-glow" />
+        <div className="absolute top-[60%] -right-[10%] w-[40%] h-[50%] rounded-full bg-[var(--color-accent)]/5 blur-[120px] animate-pulse-glow" style={{ animationDelay: '1s' }} />
+        <div className="absolute top-[20%] left-[40%] w-[30%] h-[30%] rounded-full bg-purple-500/5 blur-[100px] animate-float" />
+      </div>
 
-      {/* Main Workspace */}
-      <div className="flex-1 mt-[64px] p-3 sm:p-4 md:p-6 overflow-hidden flex flex-col">
-        <div className="flex-1 flex flex-col lg:flex-row gap-3 sm:gap-4 md:gap-6 min-h-0 w-full max-w-[1800px] mx-auto">
-          <Sidebar
-            prompt={prompt}
-            onPromptChange={setPrompt}
-            onSend={handleSend}
-            isLoading={isLoading}
-          />
-          <CodeEditor code={code} onCodeChange={setCode} />
-          <Response data={data} loading={isLoading} />
+      <div className="z-10 flex flex-col h-full w-full">
+        <Navbar />
+
+        {/* Main Workspace */}
+        <div className="flex-1 mt-[64px] p-3 sm:p-4 md:p-6 lg:p-8 overflow-hidden flex flex-col animate-fade-in">
+          <div className="flex-1 flex flex-col lg:flex-row gap-4 sm:gap-5 md:gap-6 min-h-0 w-full max-w-[1800px] mx-auto">
+            <Sidebar
+              prompt={prompt}
+              onPromptChange={setPrompt}
+              onSend={handleSend}
+              isLoading={isLoading}
+            />
+            <CodeEditor code={code} onCodeChange={setCode} />
+            <Response data={data} loading={isLoading} />
+          </div>
         </div>
       </div>
     </div>

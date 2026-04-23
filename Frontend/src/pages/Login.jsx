@@ -32,9 +32,9 @@ export default function LoginComponent() {
     const ctx = gsap.context(() => {
       gsap.from(cardRef.current, {
         opacity: 0,
-        y: 30,
-        scale: 0.96,
-        duration: 0.7,
+        y: 20,
+        scale: 0.98,
+        duration: 0.6,
         ease: "power3.out",
       });
     }, containerRef);
@@ -119,38 +119,37 @@ export default function LoginComponent() {
   return (
     <div
       ref={containerRef}
-      className="min-h-screen bg-[var(--color-bg-primary)] flex items-center justify-center px-4 py-8"
+      className="min-h-screen bg-[var(--color-bg-primary)] flex items-center justify-center p-4 sm:p-8"
     >
       {/* Background gradient orbs */}
-      <div className="fixed inset-0 overflow-hidden pointer-events-none">
+      <div className="fixed inset-0 overflow-hidden pointer-events-none hidden sm:block">
         <div className="absolute -top-40 -right-40 w-80 h-80 bg-[var(--color-accent)]/5 rounded-full blur-[100px]" />
         <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-[var(--color-indigo)]/5 rounded-full blur-[100px]" />
       </div>
 
       <div
         ref={cardRef}
-        className="relative w-full max-w-[420px] p-8 rounded-2xl glass shadow-xl"
-        style={{ boxShadow: "var(--shadow-xl)" }}
+        className="relative w-full max-w-[400px] p-6 sm:p-8 rounded-2xl glass shadow-2xl bg-[var(--color-bg-card)] border border-[var(--color-border-subtle)]"
       >
         {/* Logo & Title */}
-        <div className="flex flex-col items-center mb-8">
-          <div className="w-16 h-16 rounded-2xl overflow-hidden mb-4 ring-2 ring-[var(--color-accent)]/20 shadow-lg animate-float">
+        <div className="flex flex-col items-center mb-6 sm:mb-8">
+          <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl overflow-hidden mb-4 ring-2 ring-[var(--color-accent)]/20 shadow-lg animate-float">
             <img
               src={Logo}
               alt="ZeroBugX"
               className="w-full h-full object-cover"
             />
           </div>
-          <h1 className="text-2xl font-bold gradient-text tracking-tight">
+          <h1 className="text-xl sm:text-2xl font-bold gradient-text tracking-tight">
             Welcome Back
           </h1>
-          <p className="text-[var(--color-text-muted)] text-sm mt-1">
+          <p className="text-[var(--color-text-muted)] text-xs sm:text-sm mt-1 text-center">
             Sign in to your ZeroBugX account
           </p>
         </div>
 
         {/* Form */}
-        <form onSubmit={handleSubmit} className="space-y-5" noValidate>
+        <form onSubmit={handleSubmit} className="space-y-4" noValidate>
           {/* Email Field */}
           <div>
             <label
@@ -218,7 +217,7 @@ export default function LoginComponent() {
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3.5 top-1/2 -translate-y-1/2 text-[var(--color-text-muted)] hover:text-[var(--color-accent)] transition-colors"
+                className="absolute right-3.5 top-1/2 -translate-y-1/2 text-[var(--color-text-muted)] hover:text-[var(--color-accent)] transition-colors p-1"
                 aria-label={showPassword ? "Hide password" : "Show password"}
               >
                 {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
@@ -235,7 +234,7 @@ export default function LoginComponent() {
           <button
             type="submit"
             disabled={isSubmitting}
-            className="w-full py-3 bg-[var(--color-accent)] hover:bg-[var(--color-accent-hover)] text-white rounded-xl font-semibold text-sm shadow-lg shadow-[var(--color-accent)]/20 transition-all duration-200 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 cursor-pointer"
+            className="w-full py-3.5 mt-2 bg-[var(--color-accent)] hover:bg-[var(--color-accent-hover)] text-white rounded-xl font-semibold text-sm shadow-lg shadow-[var(--color-accent)]/20 transition-all duration-200 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 cursor-pointer"
           >
             {isSubmitting ? (
               <>
@@ -256,7 +255,7 @@ export default function LoginComponent() {
           Don&apos;t have an account?{" "}
           <Link
             to="/signup"
-            className="text-[var(--color-accent)] hover:text-[var(--color-accent-hover)] font-medium transition-colors"
+            className="text-[var(--color-accent)] hover:text-[var(--color-accent-hover)] font-semibold transition-colors"
           >
             Create one
           </Link>

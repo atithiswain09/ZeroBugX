@@ -270,46 +270,59 @@ export default function Response({ data, loading }) {
 
   return (
     <div
-      className="w-full lg:w-[420px] xl:w-[480px] flex flex-col h-full bg-[var(--color-bg-elevated)] rounded-xl border border-[var(--color-border-subtle)] overflow-hidden shrink-0"
-      style={{ boxShadow: "var(--shadow-lg)" }}
+      className="w-full lg:w-[420px] xl:w-[480px] flex flex-col h-full bg-[#0b0f17]/90 backdrop-blur-xl rounded-2xl border border-[var(--color-border-subtle)] overflow-hidden shrink-0 relative shadow-[0_20px_40px_-15px_rgba(0,0,0,0.5)]"
     >
+      <div className="absolute inset-0 bg-gradient-to-b from-[var(--color-accent)]/[0.02] to-transparent pointer-events-none" />
+      
+      {/* Sleek Top Accent Line */}
+      <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-[var(--color-accent)]/50 to-transparent opacity-50" />
+
       {/* ── Header ── */}
-      <div className="flex items-center justify-between px-4 sm:px-5 py-3.5 border-b border-[var(--color-border-subtle)] bg-[var(--color-bg-card)]">
+      <div className="flex items-center justify-between px-5 py-4 border-b border-[var(--color-border-subtle)] bg-[#0f141e]/50 relative z-10">
         <div className="flex items-center gap-3">
-          <div className="p-1.5 bg-[var(--color-accent-subtle)] rounded-md">
-            <Sparkles size={16} className="text-[var(--color-accent)]" />
+          <div className="relative">
+            <div className="absolute inset-0 bg-[var(--color-accent)]/20 blur-md rounded-full" />
+            <div className="relative p-2 bg-gradient-to-b from-[#1a2235] to-[#0f141e] rounded-xl border border-[var(--color-accent)]/30 shadow-inner">
+              <Sparkles className="text-[var(--color-accent)]" size={16} strokeWidth={2.5} />
+            </div>
           </div>
           <div>
-            <h3 className="text-sm font-semibold text-[var(--color-text-primary)] leading-none">
-              AI Review
+            <h3 className="text-[13px] font-bold text-[#e2e8f0] tracking-wide uppercase">
+              Analysis Output
             </h3>
-            <p className="text-[10px] text-[var(--color-text-disabled)] mt-0.5">
-              Powered by Gemini
+            <p className="text-[11px] text-[var(--color-text-muted)] mt-0.5 font-medium flex items-center gap-1.5">
+              Powered by <span className="text-[var(--color-indigo)] font-semibold">Gemini AI</span>
             </p>
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-3">
           {data?.response && (
             <button
               onClick={handleCopy}
-              className="flex items-center gap-1 px-2 py-1 rounded-md text-[11px] font-medium hover:bg-white/5 text-[var(--color-text-muted)] hover:text-[var(--color-text-secondary)] transition-all cursor-pointer"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-semibold hover:bg-white/10 text-[var(--color-text-secondary)] hover:text-white transition-all cursor-pointer shadow-sm border border-[var(--color-border-subtle)] bg-[#161b22]"
               title="Copy full response"
             >
               {copied ? (
-                <Check size={13} className="text-[var(--color-success)]" />
+                <>
+                  <Check size={12} className="text-[var(--color-success)]" />
+                  <span className="text-[var(--color-success)]">Copied</span>
+                </>
               ) : (
-                <Copy size={13} />
+                <>
+                  <Copy size={12} />
+                  Copy
+                </>
               )}
             </button>
           )}
-          <div className="flex items-center gap-1.5 px-2.5 py-1 bg-white/5 border border-[var(--color-border-subtle)] rounded-full">
+          <div className="flex items-center gap-2 px-3 py-1.5 bg-[#161b22] border border-[var(--color-border-subtle)] rounded-full shadow-[inset_0_2px_4px_rgba(0,0,0,0.3)]">
             <span
-              className={`w-1.5 h-1.5 rounded-full ${statusDot} ${
-                loading ? "animate-pulse" : ""
-              }`}
+              className={`w-2 h-2 rounded-full ${statusDot} ${
+                loading ? "animate-pulse shadow-[0_0_8px_var(--color-warning)]" : ""
+              } ${data?.response ? "shadow-[0_0_8px_var(--color-success)]" : ""}`}
             />
-            <span className="text-[10px] font-semibold uppercase tracking-wider text-[var(--color-text-muted)]">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-[var(--color-text-secondary)]">
               {statusLabel}
             </span>
           </div>
@@ -317,34 +330,39 @@ export default function Response({ data, loading }) {
       </div>
 
       {/* ── Content ── */}
-      <div className="flex-1 overflow-y-auto p-4 sm:p-5 custom-scrollbar relative bg-[var(--color-bg-primary)]">
+      <div className="flex-1 overflow-y-auto p-5 custom-scrollbar relative bg-transparent z-10">
         {loading ? (
           /* Loading State */
-          <div className="flex flex-col items-center justify-center h-full gap-5">
+          <div className="flex flex-col items-center justify-center h-full gap-6">
             <div className="relative">
-              <div className="w-12 h-12 rounded-full border-2 border-[var(--color-border-subtle)]" />
-              <div className="absolute inset-0 w-12 h-12 rounded-full border-2 border-transparent border-t-[var(--color-accent)] animate-spin" />
-              <div className="absolute inset-2 w-8 h-8 rounded-full border-2 border-transparent border-b-[var(--color-indigo)] animate-spin-reverse" />
+              <div className="w-16 h-16 rounded-full border-2 border-[var(--color-border-subtle)]" />
+              <div className="absolute inset-0 w-16 h-16 rounded-full border-2 border-transparent border-t-[var(--color-accent)] animate-spin" style={{ animationDuration: '1.5s' }} />
+              <div className="absolute inset-2 w-12 h-12 rounded-full border-2 border-transparent border-b-[var(--color-indigo)] animate-spin-reverse" style={{ animationDuration: '2s' }} />
+              <div className="absolute inset-0 flex items-center justify-center">
+                <Sparkles size={16} className="text-[var(--color-accent)] animate-pulse" />
+              </div>
             </div>
-            <div className="flex flex-col items-center gap-1.5">
-              <p className="text-[var(--color-accent)] text-sm font-medium">
-                Analyzing your code...
+            <div className="flex flex-col items-center gap-2">
+              <p className="text-[var(--color-accent)] text-sm font-semibold tracking-wide">
+                ANALYZING CODEBASE...
               </p>
-              <p className="text-[var(--color-text-disabled)] text-xs">
-                This might take a few seconds
-              </p>
+              <div className="flex gap-1">
+                <span className="w-1.5 h-1.5 rounded-full bg-[var(--color-text-disabled)] animate-bounce" style={{ animationDelay: '0s' }} />
+                <span className="w-1.5 h-1.5 rounded-full bg-[var(--color-text-disabled)] animate-bounce" style={{ animationDelay: '0.2s' }} />
+                <span className="w-1.5 h-1.5 rounded-full bg-[var(--color-text-disabled)] animate-bounce" style={{ animationDelay: '0.4s' }} />
+              </div>
             </div>
             {/* Shimmer skeleton */}
-            <div className="w-full space-y-3 mt-4">
-              {[100, 85, 92, 70, 88].map((w, i) => (
+            <div className="w-full space-y-4 mt-6 px-4">
+              {[100, 85, 95, 70].map((w, i) => (
                 <div
                   key={i}
-                  className="h-3 rounded-full animate-shimmer"
+                  className="h-2 rounded-full animate-shimmer"
                   style={{
                     width: `${w}%`,
                     animationDelay: `${i * 0.15}s`,
                     background:
-                      "linear-gradient(90deg, var(--color-bg-card) 0%, var(--color-bg-elevated) 50%, var(--color-bg-card) 100%)",
+                      "linear-gradient(90deg, #161b22 0%, #1f2937 50%, #161b22 100%)",
                     backgroundSize: "200% 100%",
                   }}
                 />
@@ -353,7 +371,7 @@ export default function Response({ data, loading }) {
           </div>
         ) : data?.response ? (
           /* Markdown Content */
-          <div className="animate-fade-in">
+          <div className="animate-fade-in text-[14px]">
             <ReactMarkdown
               remarkPlugins={[remarkGfm]}
               components={markdownComponents}
@@ -363,22 +381,24 @@ export default function Response({ data, loading }) {
           </div>
         ) : (
           /* Empty State */
-          <div className="flex flex-col items-center justify-center h-full text-center gap-5 opacity-60">
-            <div className="w-16 h-16 rounded-2xl bg-white/5 border border-[var(--color-border-subtle)] flex items-center justify-center animate-float">
-              <Bot size={28} className="text-[var(--color-text-disabled)]" />
+          <div className="flex flex-col items-center justify-center h-full text-center gap-6 opacity-80">
+            <div className="relative group">
+              <div className="absolute inset-0 bg-[var(--color-indigo)]/20 blur-xl rounded-full group-hover:bg-[var(--color-indigo)]/30 transition-colors duration-500" />
+              <div className="relative w-20 h-20 rounded-2xl bg-gradient-to-br from-[#161b22] to-[#0f141e] border border-[var(--color-border-subtle)] flex items-center justify-center animate-float shadow-xl">
+                <Bot size={32} strokeWidth={1.5} className="text-[var(--color-text-muted)] group-hover:text-[var(--color-indigo)] transition-colors duration-500" />
+              </div>
             </div>
             <div>
-              <p className="text-[var(--color-text-muted)] text-sm font-medium">
+              <p className="text-[#e2e8f0] text-[15px] font-semibold tracking-wide">
                 Awaiting Instructions
               </p>
-              <p className="text-[var(--color-text-disabled)] text-xs mt-1.5 max-w-[240px] leading-relaxed">
-                Enter a prompt and paste your code to receive AI-powered
-                feedback, bug detection, and improvement suggestions.
+              <p className="text-[var(--color-text-disabled)] text-[13px] mt-2 max-w-[280px] leading-relaxed">
+                Provide your code and instructions in the panels to generate an AI-powered code review, bug detection, or refactoring suggestions.
               </p>
             </div>
-            <div className="flex items-center gap-1.5 text-[var(--color-text-disabled)]">
-              <ChevronDown size={14} className="animate-bounce" />
-              <span className="text-[11px]">Write a prompt to begin</span>
+            <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-[#161b22] border border-[var(--color-border-subtle)] mt-2">
+              <span className="w-2 h-2 rounded-full bg-[var(--color-indigo)] animate-pulse" />
+              <span className="text-[11px] font-mono text-[var(--color-text-muted)] uppercase tracking-wider">System Ready</span>
             </div>
           </div>
         )}

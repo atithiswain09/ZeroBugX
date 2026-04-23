@@ -1,4 +1,12 @@
-import { useState, useEffect, useRef, useContext } from "react";
+import {
+  useState,
+  useEffect,
+  useRef,
+  useContext,
+  useMemo,
+  useCallback,
+  memo,
+} from "react";
 import Logo from "../assets/zerobugx.png";
 import { Link, useNavigate } from "react-router-dom";
 import gsap from "gsap";
@@ -17,7 +25,6 @@ import {
 } from "lucide-react";
 import { AuthContext } from "../context/AuthContext";
 
-// Password strength checker
 function getPasswordStrength(password) {
   const checks = {
     length: password.length >= 8,
@@ -42,9 +49,102 @@ function getPasswordStrength(password) {
   return { checks, passed, level, color };
 }
 
+const PasswordCheck = memo(function PasswordCheck({ met, label }) {
+  return (
+    <div className="flex items-center gap-1.5 text-xs">
+      {met ? (
+        <Check size={14} className="text-[var(--color-success)] shrink-0" />
+      ) : (
+        <X size={14} className="text-[var(--color-text-disabled)] shrink-0" />
+      )}
+      <span
+        className={`truncate ${
+          met
+            ? "text-[var(--color-text-secondary)]"
+            : "text-[var(--color-text-disabled)]"
+        }`}
+      >
+        {label}
+      </span>
+    </div>
+  );
+});
+
+const InputField = memo(function InputField({
+  id,
+  name,
+  type = "text",
+  label,
+  placeholder,
+  icon: Icon,
+  autoComplete,
+  showToggle,
+  toggleState,
+  onToggle,
+  value,
+  error,
+  onChange,
+  onBlur,
+  onFocus,
+}) {
+  return (
+    <div>
+      <label
+        htmlFor={id}
+        className="block text-xs font-medium text-[var(--color-text-secondary)] mb-1.5"
+      >
+        {label}
+      </label>
+
+      <div className="relative">
+        <Icon
+          size={16}
+          className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[var(--color-text-muted)]"
+        />
+
+        <input
+          id={id}
+          type={showToggle ? (toggleState ? "text" : "password") : type}
+          name={name}
+          placeholder={placeholder}
+          value={value}
+          onChange={onChange}
+          onBlur={onBlur}
+          onFocus={onFocus}
+          autoComplete={autoComplete}
+          className={`w-full bg-[var(--color-bg-input)] border rounded-xl pl-10 ${
+            showToggle ? "pr-12" : "pr-4"
+          } py-3 text-sm text-[var(--color-text-primary)] placeholder:text-[var(--color-text-disabled)] outline-none transition-all duration-200 focus:ring-2 ${
+            error
+              ? "border-[var(--color-danger)] focus:ring-[var(--color-danger)]/30"
+              : "border-[var(--color-border-subtle)] focus:border-[var(--color-accent)] focus:ring-[var(--color-accent)]/20"
+          }`}
+        />
+
+        {showToggle && (
+          <button
+            type="button"
+            onClick={onToggle}
+            className="absolute right-3.5 top-1/2 -translate-y-1/2 text-[var(--color-text-muted)] hover:text-[var(--color-accent)] transition-colors p-1"
+            aria-label={toggleState ? "Hide password" : "Show password"}
+          >
+            {toggleState ? <EyeOff size={18} /> : <Eye size={18} />}
+          </button>
+        )}
+      </div>
+
+      {error && (
+        <p className="text-[var(--color-danger)] text-xs mt-1.5 animate-fade-in">
+          {error}
+        </p>
+      )}
+    </div>
+  );
+});
+
 export default function SignupComponent() {
   const navigate = useNavigate();
-  const { isAuth } = useContext(AuthContext);
+  const { isAuth, login } = useContext(AuthContext);
 
   const [formData, setFormData] = useState({
     username: "",
@@ -52,6 +152,7 @@ export default function SignupComponent() {
     password: "",
     confirmPassword: "",
   });
+
   const [errors, setErrors] = useState({});
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -61,69 +162,94 @@ export default function SignupComponent() {
   const containerRef = useRef(null);
   const cardRef = useRef(null);
 
-  const strength = getPasswordStrength(formData.password);
+  const strength = useMemo(() => {
+    return getPasswordStrength(formData.password);
+  }, [formData.password]);
 
-  // Redirect if already authenticated
   useEffect(() => {
     if (isAuth) navigate("/review", { replace: true });
   }, [isAuth, navigate]);
 
-  // Entry animation
   useEffect(() => {
     const ctx = gsap.context(() => {
       gsap.from(cardRef.current, {
         opacity: 0,
-        y: 30,
-        scale: 0.96,
-        duration: 0.7,
+        y: 20,
+        scale: 0.98,
+        duration: 0.6,
         ease: "power3.out",
       });
     }, containerRef);
+
     return () => ctx.revert();
   }, []);
 
-  const validateField = (name, value) => {
-    switch (name) {
-      case "username":
-        if (!value.trim()) return "Username is required";
-        if (value.trim().length < 3) return "At least 3 characters";
-        if (value.trim().length > 30) return "Max 30 characters";
-        if (!/^[a-zA-Z0-9_]+$/.test(value.trim()))
-          return "Letters, numbers, underscores only";
-        return "";
-      case "email":
-        if (!value.trim()) return "Email is required";
-        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim()))
-          return "Enter a valid email address";
-        return "";
-      case "password":
-        if (!value) return "Password is required";
-        if (value.length < 8) return "At least 8 characters";
-        if (!/[a-z]/.test(value)) return "Must include a lowercase letter";
-        if (!/[A-Z]/.test(value)) return "Must include an uppercase letter";
-        if (!/[0-9]/.test(value)) return "Must include a number";
-        return "";
-      case "confirmPassword":
-        if (!value) return "Please confirm your password";
-        if (value !== formData.password) return "Passwords do not match";
-        return "";
-      default:
-        return "";
-    }
-  };
+  const validateField = useCallback(
+    (name, value) => {
+      switch (name) {
+        case "username":
+          if (!value.trim()) return "Username is required";
+          if (value.trim().length < 3) return "At least 3 characters";
+          if (value.trim().length > 30) return "Max 30 characters";
+          if (!/^[a-zA-Z0-9_]+$/.test(value.trim()))
+            return "Letters, numbers, underscores only";
+          return "";
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-    if (errors[name]) setErrors((prev) => ({ ...prev, [name]: "" }));
-  };
+        case "email":
+          if (!value.trim()) return "Email is required";
+          if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim()))
+            return "Enter a valid email address";
+          return "";
 
-  const handleBlur = (e) => {
+        case "password":
+          if (!value) return "Password is required";
+          if (value.length < 8) return "At least 8 characters";
+          if (!/[a-z]/.test(value)) return "Must include a lowercase letter";
+          if (!/[A-Z]/.test(value)) return "Must include an uppercase letter";
+          if (!/[0-9]/.test(value)) return "Must include a number";
+          return "";
+
+        case "confirmPassword":
+          if (!value) return "Please confirm your password";
+          if (value !== formData.password) return "Passwords do not match";
+          return "";
+
+        default:
+          return "";
+      }
+    },
+    [formData.password]
+  );
+
+  const handleChange = useCallback((e) => {
     const { name, value } = e.target;
-    if (name === "password") setPasswordFocused(false);
-    const error = validateField(name, value);
-    if (error) setErrors((prev) => ({ ...prev, [name]: error }));
-  };
+
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+
+    setErrors((prev) => {
+      if (!prev[name]) return prev;
+      return { ...prev, [name]: "" };
+    });
+  }, []);
+
+  const handleBlur = useCallback(
+    (e) => {
+      const { name, value } = e.target;
+
+      if (name === "password") setPasswordFocused(false);
+
+      const error = validateField(name, value);
+
+      setErrors((prev) => ({
+        ...prev,
+        [name]: error,
+      }));
+    },
+    [validateField]
+  );
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -141,8 +267,10 @@ export default function SignupComponent() {
     }
 
     setIsSubmitting(true);
+
     try {
       const { confirmPassword, ...signupData } = formData;
+
       const trimmedData = {
         username: signupData.username.trim(),
         email: signupData.email.trim(),
@@ -152,8 +280,18 @@ export default function SignupComponent() {
       const response = await signupAPI(trimmedData);
       toast.success(response.data.message || "Account created!");
 
-      setFormData({ username: "", email: "", password: "", confirmPassword: "" });
-      navigate("/login");
+      if (response.data.user) {
+        login(response.data.user);
+      }
+
+      setFormData({
+        username: "",
+        email: "",
+        password: "",
+        confirmPassword: "",
+      });
+
+      navigate("/review");
     } catch (error) {
       const msg =
         error.response?.data?.message || "Signup failed. Please try again.";
@@ -171,120 +309,36 @@ export default function SignupComponent() {
     }
   };
 
-  const PasswordCheck = ({ met, label }) => (
-    <div className="flex items-center gap-2 text-xs">
-      {met ? (
-        <Check size={12} className="text-[var(--color-success)]" />
-      ) : (
-        <X size={12} className="text-[var(--color-text-disabled)]" />
-      )}
-      <span
-        className={
-          met
-            ? "text-[var(--color-text-secondary)]"
-            : "text-[var(--color-text-disabled)]"
-        }
-      >
-        {label}
-      </span>
-    </div>
-  );
-
-  const InputField = ({
-    id,
-    name,
-    type = "text",
-    label,
-    placeholder,
-    icon: Icon,
-    autoComplete,
-    showToggle,
-    toggleState,
-    onToggle,
-  }) => (
-    <div>
-      <label
-        htmlFor={id}
-        className="block text-xs font-medium text-[var(--color-text-secondary)] mb-1.5"
-      >
-        {label}
-      </label>
-      <div className="relative">
-        <Icon
-          size={16}
-          className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[var(--color-text-muted)]"
-        />
-        <input
-          id={id}
-          type={showToggle ? (toggleState ? "text" : "password") : type}
-          name={name}
-          placeholder={placeholder}
-          value={formData[name]}
-          onChange={handleChange}
-          onBlur={handleBlur}
-          onFocus={name === "password" ? () => setPasswordFocused(true) : undefined}
-          autoComplete={autoComplete}
-          className={`w-full bg-[var(--color-bg-input)] border rounded-xl pl-10 ${
-            showToggle ? "pr-12" : "pr-4"
-          } py-3 text-sm text-[var(--color-text-primary)] placeholder:text-[var(--color-text-disabled)] outline-none transition-all duration-200 focus:ring-2 ${
-            errors[name]
-              ? "border-[var(--color-danger)] focus:ring-[var(--color-danger)]/30"
-              : "border-[var(--color-border-subtle)] focus:border-[var(--color-accent)] focus:ring-[var(--color-accent)]/20"
-          }`}
-        />
-        {showToggle && (
-          <button
-            type="button"
-            onClick={onToggle}
-            className="absolute right-3.5 top-1/2 -translate-y-1/2 text-[var(--color-text-muted)] hover:text-[var(--color-accent)] transition-colors"
-            aria-label={toggleState ? "Hide password" : "Show password"}
-          >
-            {toggleState ? <EyeOff size={18} /> : <Eye size={18} />}
-          </button>
-        )}
-      </div>
-      {errors[name] && (
-        <p className="text-[var(--color-danger)] text-xs mt-1.5 animate-fade-in">
-          {errors[name]}
-        </p>
-      )}
-    </div>
-  );
-
   return (
     <div
       ref={containerRef}
-      className="min-h-screen bg-[var(--color-bg-primary)] flex items-center justify-center px-4 py-8"
+      className="min-h-screen bg-[var(--color-bg-primary)] flex items-center justify-center p-4 sm:p-8"
     >
-      {/* Background gradient orbs */}
-      <div className="fixed inset-0 overflow-hidden pointer-events-none">
+      <div className="fixed inset-0 overflow-hidden pointer-events-none hidden sm:block">
         <div className="absolute -top-40 -left-40 w-80 h-80 bg-[var(--color-indigo)]/5 rounded-full blur-[100px]" />
         <div className="absolute -bottom-40 -right-40 w-80 h-80 bg-[var(--color-accent)]/5 rounded-full blur-[100px]" />
       </div>
 
       <div
         ref={cardRef}
-        className="relative w-full max-w-[420px] p-8 rounded-2xl glass shadow-xl"
-        style={{ boxShadow: "var(--shadow-xl)" }}
+        className="relative w-full max-w-[400px] p-6 sm:p-8 rounded-2xl glass shadow-2xl bg-[var(--color-bg-card)] border border-[var(--color-border-subtle)]"
       >
-        {/* Logo & Title */}
-        <div className="flex flex-col items-center mb-8">
-          <div className="w-16 h-16 rounded-2xl overflow-hidden mb-4 ring-2 ring-[var(--color-indigo)]/20 shadow-lg animate-float">
+        <div className="flex flex-col items-center mb-6 sm:mb-8">
+          <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl overflow-hidden mb-4 ring-2 ring-[var(--color-indigo)]/20 shadow-lg animate-float">
             <img
               src={Logo}
               alt="ZeroBugX"
               className="w-full h-full object-cover"
             />
           </div>
-          <h1 className="text-2xl font-bold gradient-text-indigo tracking-tight">
+          <h1 className="text-xl sm:text-2xl font-bold gradient-text-indigo tracking-tight">
             Create Account
           </h1>
-          <p className="text-[var(--color-text-muted)] text-sm mt-1">
+          <p className="text-[var(--color-text-muted)] text-xs sm:text-sm mt-1 text-center">
             Join ZeroBugX and review code with AI
           </p>
         </div>
 
-        {/* Form */}
         <form onSubmit={handleSubmit} className="space-y-4" noValidate>
           <InputField
             id="signup-username"
@@ -293,6 +347,10 @@ export default function SignupComponent() {
             placeholder="your_username"
             icon={User}
             autoComplete="username"
+            value={formData.username}
+            error={errors.username}
+            onChange={handleChange}
+            onBlur={handleBlur}
           />
 
           <InputField
@@ -303,6 +361,10 @@ export default function SignupComponent() {
             placeholder="you@example.com"
             icon={Mail}
             autoComplete="email"
+            value={formData.email}
+            error={errors.email}
+            onChange={handleChange}
+            onBlur={handleBlur}
           />
 
           <InputField
@@ -314,18 +376,21 @@ export default function SignupComponent() {
             autoComplete="new-password"
             showToggle
             toggleState={showPassword}
-            onToggle={() => setShowPassword(!showPassword)}
+            onToggle={() => setShowPassword((prev) => !prev)}
+            value={formData.password}
+            error={errors.password}
+            onChange={handleChange}
+            onBlur={handleBlur}
+            onFocus={() => setPasswordFocused(true)}
           />
 
-          {/* Password Strength Indicator */}
           {formData.password && (passwordFocused || errors.password) && (
-            <div className="animate-fade-in space-y-2 p-3 rounded-lg bg-[var(--color-bg-input)] border border-[var(--color-border-subtle)]">
-              {/* Strength Bar */}
-              <div className="flex gap-1">
+            <div className="animate-fade-in space-y-2.5 p-3.5 rounded-xl bg-[var(--color-bg-elevated)] border border-[var(--color-border-subtle)]">
+              <div className="flex gap-1.5">
                 {[1, 2, 3, 4, 5].map((i) => (
                   <div
                     key={i}
-                    className="h-1 flex-1 rounded-full transition-all duration-300"
+                    className="h-1.5 flex-1 rounded-full transition-all duration-300"
                     style={{
                       backgroundColor:
                         i <= strength.passed
@@ -335,11 +400,13 @@ export default function SignupComponent() {
                   />
                 ))}
               </div>
-              <p className="text-xs font-medium" style={{ color: strength.color }}>
-                Password strength: {strength.level}
+
+              <p className="text-xs font-semibold" style={{ color: strength.color }}>
+                Strength: <span className="capitalize">{strength.level}</span>
               </p>
-              <div className="grid grid-cols-2 gap-1">
-                <PasswordCheck met={strength.checks.length} label="8+ characters" />
+
+              <div className="grid grid-cols-1 xs:grid-cols-2 gap-y-1.5 gap-x-2">
+                <PasswordCheck met={strength.checks.length} label="8+ chars" />
                 <PasswordCheck met={strength.checks.lowercase} label="Lowercase" />
                 <PasswordCheck met={strength.checks.uppercase} label="Uppercase" />
                 <PasswordCheck met={strength.checks.number} label="Number" />
@@ -356,14 +423,17 @@ export default function SignupComponent() {
             autoComplete="new-password"
             showToggle
             toggleState={showConfirmPassword}
-            onToggle={() => setShowConfirmPassword(!showConfirmPassword)}
+            onToggle={() => setShowConfirmPassword((prev) => !prev)}
+            value={formData.confirmPassword}
+            error={errors.confirmPassword}
+            onChange={handleChange}
+            onBlur={handleBlur}
           />
 
-          {/* Submit Button */}
           <button
             type="submit"
             disabled={isSubmitting}
-            className="w-full py-3 bg-[var(--color-indigo)] hover:bg-[var(--color-indigo-hover)] text-white rounded-xl font-semibold text-sm shadow-lg shadow-[var(--color-indigo)]/20 transition-all duration-200 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 cursor-pointer mt-2"
+            className="w-full py-3.5 mt-2 bg-[var(--color-indigo)] hover:bg-[var(--color-indigo-hover)] text-white rounded-xl font-semibold text-sm shadow-lg shadow-[var(--color-indigo)]/20 transition-all duration-200 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 cursor-pointer"
           >
             {isSubmitting ? (
               <>
@@ -379,12 +449,11 @@ export default function SignupComponent() {
           </button>
         </form>
 
-        {/* Footer */}
         <p className="text-center text-[var(--color-text-muted)] text-sm mt-6">
           Already have an account?{" "}
           <Link
             to="/login"
-            className="text-[var(--color-indigo)] hover:text-[var(--color-indigo-hover)] font-medium transition-colors"
+            className="text-[var(--color-indigo)] hover:text-[var(--color-indigo-hover)] font-semibold transition-colors"
           >
             Sign in
           </Link>

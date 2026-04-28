@@ -136,10 +136,22 @@ function Navbar() {
         </div>
       </div>
 
-      {/* Mobile Menu */}
+      {/* Mobile Menu Overlay */}
       {mobileMenuOpen && (
-        <div className="md:hidden border-t border-[var(--color-border-subtle)] bg-[var(--color-bg-primary)]/95 backdrop-blur-xl animate-fade-in">
-          <div className="px-4 py-3 space-y-1">
+        <div 
+          className="fixed inset-0 bg-[var(--color-bg-primary)]/60 backdrop-blur-sm z-[45] md:hidden animate-fade-in"
+          onClick={() => setMobileMenuOpen(false)}
+        />
+      )}
+
+      {/* Mobile Menu */}
+      <div 
+        className={`md:hidden fixed top-16 left-0 w-full bg-[var(--color-bg-primary)]/95 backdrop-blur-xl border-b border-[var(--color-border-subtle)] z-[48] transition-all duration-300 ease-in-out transform shadow-xl ${
+          mobileMenuOpen ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-4 pointer-events-none"
+        }`}
+      >
+        <div className="px-4 py-6 space-y-3">
+          <div className="grid grid-cols-1 gap-2">
             <NavLink to="/" icon={Home}>
               Home
             </NavLink>
@@ -150,8 +162,44 @@ function Navbar() {
               Profile
             </NavLink>
           </div>
+          
+          <div className="pt-4 border-t border-[var(--color-border-subtle)]">
+            {isAuth ? (
+              <div className="space-y-4">
+                <div className="flex items-center gap-3 px-3 py-2 rounded-lg bg-white/5 border border-[var(--color-border-subtle)]">
+                  <div className="w-8 h-8 rounded-full bg-[var(--color-accent-subtle)] flex items-center justify-center">
+                    <span className="text-xs font-bold text-[var(--color-accent)]">
+                      {user?.username?.charAt(0).toUpperCase()}
+                    </span>
+                  </div>
+                  <div className="flex flex-col">
+                    <span className="text-sm font-bold text-[var(--color-text-primary)]">
+                      {user?.username}
+                    </span>
+                    <span className="text-[10px] text-[var(--color-text-muted)]">
+                      {user?.email}
+                    </span>
+                  </div>
+                </div>
+                <button
+                  onClick={handleLogout}
+                  className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-sm font-bold text-[var(--color-danger)] bg-[var(--color-danger-subtle)] border border-[var(--color-danger)]/20 hover:bg-[var(--color-danger-subtle)]/80 transition-all cursor-pointer"
+                >
+                  <LogOut size={18} />
+                  <span>Sign Out</span>
+                </button>
+              </div>
+            ) : (
+              <Link
+                to="/login"
+                className="flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-sm font-bold text-white bg-[var(--color-accent)] hover:bg-[var(--color-accent-hover)] transition-all shadow-lg shadow-[var(--color-accent)]/20"
+              >
+                Sign In
+              </Link>
+            )}
+          </div>
         </div>
-      )}
+      </div>
     </nav>
   );
 }

@@ -15,7 +15,7 @@ export default function Sidebar({
   };
 
   return (
-    <div className="w-full lg:w-[340px] flex flex-col h-full bg-[#0b0f17]/90 backdrop-blur-xl rounded-2xl border border-[var(--color-border-subtle)] overflow-hidden shrink-0 relative group shadow-[0_20px_40px_-15px_rgba(0,0,0,0.5)]"
+    <div className="w-full lg:w-[320px] xl:w-[340px] flex flex-col h-full bg-[#0b0f17]/90 backdrop-blur-xl rounded-2xl border border-[var(--color-border-subtle)] overflow-hidden shrink-0 relative group shadow-[0_20px_40px_-15px_rgba(0,0,0,0.5)]"
     >
       <div className="absolute inset-0 bg-gradient-to-b from-[var(--color-indigo)]/[0.02] to-transparent pointer-events-none" />
       
@@ -24,7 +24,7 @@ export default function Sidebar({
 
       <div className="flex-1 flex flex-col relative z-10 p-0">
         {/* Header - IDE Style */}
-        <div className="flex items-center gap-3 px-5 py-4 border-b border-[var(--color-border-subtle)] bg-[#0f141e]/50">
+        <div className="flex items-center gap-3 px-3 sm:px-5 py-3 sm:py-4 border-b border-[var(--color-border-subtle)] bg-[#0f141e]/50">
           <div className="relative">
             <div className="absolute inset-0 bg-[var(--color-indigo)]/20 blur-md rounded-full" />
             <div className="relative p-2 bg-gradient-to-b from-[#1a2235] to-[#0f141e] rounded-xl border border-[var(--color-indigo)]/30 shadow-inner">
@@ -42,7 +42,7 @@ export default function Sidebar({
         </div>
 
         {/* Prompt Section */}
-        <div className="flex-1 flex flex-col p-5 relative group/textarea">
+        <div className="flex-1 flex flex-col p-3 sm:p-5 relative group/textarea">
           <label className="text-xs font-semibold text-[var(--color-text-secondary)] mb-3 flex items-center gap-2">
             <span className="w-1.5 h-1.5 rounded-full bg-[var(--color-indigo)] animate-pulse" />
             Prompt Instructions
@@ -71,7 +71,7 @@ export default function Sidebar({
         </div>
 
         {/* Action Panel - Fixed at Bottom */}
-        <div className="p-5 border-t border-[var(--color-border-subtle)] bg-[#0f141e]/50 backdrop-blur-md">
+        <div className="p-3 sm:p-5 border-t border-[var(--color-border-subtle)] bg-[#0f141e]/50 backdrop-blur-md">
           <div className="flex gap-3">
             <button
               onClick={() => onPromptChange("")}

@@ -41,7 +41,7 @@ function CodeBlock({ children, className }) {
         </div>
         <button
           onClick={handleCopy}
-          className="flex items-center gap-1 px-2 py-1 rounded-md text-[10px] font-medium text-[var(--color-text-disabled)] hover:text-[var(--color-text-secondary)] hover:bg-white/5 transition-all opacity-0 group-hover:opacity-100 cursor-pointer"
+          className="flex items-center gap-1 px-2 py-1 rounded-md text-[10px] font-medium text-[var(--color-text-disabled)] hover:text-[var(--color-text-secondary)] hover:bg-white/5 transition-all sm:opacity-0 sm:group-hover:opacity-100 cursor-pointer"
         >
           {copied ? (
             <>
@@ -59,7 +59,7 @@ function CodeBlock({ children, className }) {
       {/* Code content */}
       <pre className="!m-0 !rounded-none !border-none !bg-transparent overflow-x-auto">
         <code
-          className={`block px-4 py-4 text-[13px] leading-relaxed font-mono text-[var(--color-accent)] !bg-transparent ${
+          className={`block px-3 sm:px-4 py-3 sm:py-4 text-[12px] sm:text-[13px] leading-relaxed font-mono text-[var(--color-accent)] !bg-transparent ${
             className || ""
           }`}
         >
@@ -270,7 +270,7 @@ export default function Response({ data, loading }) {
 
   return (
     <div
-      className="w-full lg:w-[420px] xl:w-[480px] flex flex-col h-full bg-[#0b0f17]/90 backdrop-blur-xl rounded-2xl border border-[var(--color-border-subtle)] overflow-hidden shrink-0 relative shadow-[0_20px_40px_-15px_rgba(0,0,0,0.5)]"
+      className="w-full lg:w-[380px] xl:w-[440px] 2xl:w-[480px] flex flex-col h-full bg-[#0b0f17]/90 backdrop-blur-xl rounded-2xl border border-[var(--color-border-subtle)] overflow-hidden shrink-0 relative shadow-[0_20px_40px_-15px_rgba(0,0,0,0.5)]"
     >
       <div className="absolute inset-0 bg-gradient-to-b from-[var(--color-accent)]/[0.02] to-transparent pointer-events-none" />
       
@@ -278,7 +278,7 @@ export default function Response({ data, loading }) {
       <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-[var(--color-accent)]/50 to-transparent opacity-50" />
 
       {/* ── Header ── */}
-      <div className="flex items-center justify-between px-5 py-4 border-b border-[var(--color-border-subtle)] bg-[#0f141e]/50 relative z-10">
+      <div className="flex flex-wrap items-center justify-between gap-2 px-3 sm:px-5 py-3 sm:py-4 border-b border-[var(--color-border-subtle)] bg-[#0f141e]/50 relative z-10">
         <div className="flex items-center gap-3">
           <div className="relative">
             <div className="absolute inset-0 bg-[var(--color-accent)]/20 blur-md rounded-full" />
@@ -330,7 +330,7 @@ export default function Response({ data, loading }) {
       </div>
 
       {/* ── Content ── */}
-      <div className="flex-1 overflow-y-auto p-5 custom-scrollbar relative bg-transparent z-10">
+      <div className="flex-1 overflow-y-auto p-3 sm:p-5 custom-scrollbar relative bg-transparent z-10">
         {loading ? (
           /* Loading State */
           <div className="flex flex-col items-center justify-center h-full gap-6">

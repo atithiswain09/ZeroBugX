@@ -45,7 +45,7 @@ export default function CodeEditor({ code = "", onCodeChange }) {
 
   return (
     <div
-      className="flex-1 min-h-[400px] lg:min-h-0 flex flex-col glass text-white rounded-2xl border border-[var(--color-border-subtle)] overflow-hidden relative group/editor"
+      className="flex-1 min-h-[300px] sm:min-h-[400px] lg:min-h-0 flex flex-col glass text-white rounded-2xl border border-[var(--color-border-subtle)] overflow-hidden relative group/editor"
       style={{ boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255,255,255,0.05)" }}
     >
       <div className="absolute inset-0 bg-gradient-to-br from-white/[0.04] to-transparent pointer-events-none" />

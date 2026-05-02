@@ -4,7 +4,7 @@ import { Link, useNavigate } from "react-router-dom";
 import gsap from "gsap";
 import { loginAPI } from "../api/Auth.api";
 import toast from "react-hot-toast";
-import { Eye, EyeOff, Mail, Lock, ArrowRight, Loader2 } from "lucide-react";
+import { Eye, EyeOff, Mail, Lock, ArrowRight, Loader2, Shield, Sparkles, Terminal, Zap, Fingerprint } from "lucide-react";
 import { AuthContext } from "../context/AuthContext";
 
 export default function LoginComponent() {
@@ -19,8 +19,8 @@ export default function LoginComponent() {
   const [showPassword, setShowPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const containerRef = useRef(null);
-  const cardRef = useRef(null);
+  const formRef = useRef(null);
+  const brandRef = useRef(null);
 
   // Redirect if already authenticated
   useEffect(() => {
@@ -30,27 +30,35 @@ export default function LoginComponent() {
   // Entry animation
   useEffect(() => {
     const ctx = gsap.context(() => {
-      gsap.from(cardRef.current, {
+      gsap.from(".brand-element", {
         opacity: 0,
-        y: 20,
-        scale: 0.98,
-        duration: 0.6,
-        ease: "power3.out",
+        x: -40,
+        duration: 1,
+        stagger: 0.15,
+        ease: "expo.out"
       });
-    }, containerRef);
+
+      gsap.from(".form-element", {
+        opacity: 0,
+        y: 30,
+        duration: 0.8,
+        stagger: 0.1,
+        ease: "power4.out",
+        delay: 0.3
+      });
+    });
     return () => ctx.revert();
   }, []);
 
   const validateField = (name, value) => {
     switch (name) {
       case "email":
-        if (!value) return "Email is required";
+        if (!value) return "Authentication email required";
         if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value))
-          return "Enter a valid email address";
+          return "Invalid secure format";
         return "";
       case "password":
-        if (!value) return "Password is required";
-        if (value.length < 8) return "Password must be at least 8 characters";
+        if (!value) return "Access key required";
         return "";
       default:
         return "";
@@ -60,23 +68,11 @@ export default function LoginComponent() {
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
-
-    // Clear error when user starts typing
-    if (errors[name]) {
-      setErrors((prev) => ({ ...prev, [name]: "" }));
-    }
-  };
-
-  const handleBlur = (e) => {
-    const { name, value } = e.target;
-    const error = validateField(name, value);
-    if (error) setErrors((prev) => ({ ...prev, [name]: error }));
+    if (errors[name]) setErrors((prev) => ({ ...prev, [name]: "" }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    // Validate all fields
     const newErrors = {};
     Object.keys(formData).forEach((key) => {
       const error = validateField(key, formData[key]);
@@ -85,181 +81,173 @@ export default function LoginComponent() {
 
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
-      toast.error("Please fix the errors below.");
       return;
     }
 
     setIsSubmitting(true);
     try {
       const res = await loginAPI(formData);
-      const { user } = res.data;
-
-      login(user);
-      toast.success(res.data.message || "Login successful!");
-
-      setFormData({ email: "", password: "" });
+      login(res.data.user);
+      toast.success("Access Granted");
       navigate("/review");
     } catch (error) {
-      const msg = error.response?.data?.message || "Login failed. Please try again.";
-      toast.error(msg);
-
-      // Show field-level errors from validation
-      if (error.response?.data?.errors) {
-        const fieldErrors = {};
-        error.response.data.errors.forEach((err) => {
-          fieldErrors[err.field] = err.message;
-        });
-        setErrors(fieldErrors);
-      }
+      toast.error(error.response?.data?.message || "Authentication Failed");
     } finally {
       setIsSubmitting(false);
     }
   };
 
   return (
-    <div
-      ref={containerRef}
-      className="min-h-screen bg-[var(--color-bg-primary)] flex items-center justify-center p-4 sm:p-8"
-    >
-      {/* Background gradient orbs */}
-      <div className="fixed inset-0 overflow-hidden pointer-events-none hidden sm:block">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-[var(--color-accent)]/5 rounded-full blur-[100px]" />
-        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-[var(--color-indigo)]/5 rounded-full blur-[100px]" />
-      </div>
+    <div className="split-layout selection:bg-[var(--color-accent)] selection:text-white">
+      {/* Left Panel: Branding */}
+      <div className="brand-panel relative" ref={brandRef}>
+        <div className="mesh-gradient opacity-30" />
 
-      <div
-        ref={cardRef}
-        className="relative w-full max-w-[400px] p-6 sm:p-8 rounded-2xl glass shadow-2xl bg-[var(--color-bg-card)] border border-[var(--color-border-subtle)]"
-      >
-        {/* Logo & Title */}
-        <div className="flex flex-col items-center mb-6 sm:mb-8">
-          <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl overflow-hidden mb-4 ring-2 ring-[var(--color-accent)]/20 shadow-lg animate-float">
-            <img
-              src={Logo}
-              alt="ZeroBugX"
-              className="w-full h-full object-cover"
-            />
+        {/* Logo */}
+        <div className="relative z-10 brand-element pt-2">
+          <div className="flex items-center gap-4">
+            <div className="w-10 h-10 rounded-lg overflow-hidden glass p-1.5 border-white/5">
+              <img src={Logo} alt="ZeroBugX" className="w-full h-full object-contain" />
+            </div>
+            <span className="text-lg font-black tracking-tighter text-white uppercase italic">ZeroBugX</span>
           </div>
-          <h1 className="text-xl sm:text-2xl font-bold gradient-text tracking-tight">
-            Welcome Back
-          </h1>
-          <p className="text-[var(--color-text-muted)] text-xs sm:text-sm mt-1 text-center">
-            Sign in to your ZeroBugX account
-          </p>
         </div>
 
-        {/* Form */}
-        <form onSubmit={handleSubmit} className="space-y-4" noValidate>
-          {/* Email Field */}
-          <div>
-            <label
-              htmlFor="login-email"
-              className="block text-xs font-medium text-[var(--color-text-secondary)] mb-1.5"
-            >
-              Email Address
-            </label>
-            <div className="relative">
-              <Mail
-                size={16}
-                className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[var(--color-text-muted)]"
-              />
-              <input
-                id="login-email"
-                type="email"
-                name="email"
-                placeholder="you@example.com"
-                value={formData.email}
-                onChange={handleChange}
-                onBlur={handleBlur}
-                autoComplete="email"
-                className={`w-full bg-[var(--color-bg-input)] border rounded-xl pl-10 pr-4 py-3 text-sm text-[var(--color-text-primary)] placeholder:text-[var(--color-text-disabled)] outline-none transition-all duration-200 focus:ring-2 ${
-                  errors.email
-                    ? "border-[var(--color-danger)] focus:ring-[var(--color-danger)]/30"
-                    : "border-[var(--color-border-subtle)] focus:border-[var(--color-accent)] focus:ring-[var(--color-accent)]/20"
-                }`}
-              />
+        {/* Bottom Content Group */}
+        <div className="flex flex-col gap-6 relative z-10 mt-12 lg:mt-auto pb-2">
+          {/* Headline content */}
+          <div className="brand-element">
+            <div className="flex items-center gap-2 mb-4 sm:mb-6">
+              <span className="w-2 h-2 rounded-full bg-[var(--color-accent)] animate-pulse" />
+              <span className="text-[10px] font-black uppercase tracking-[0.3em] text-[var(--color-accent)]">Core Protocol 2.0</span>
             </div>
-            {errors.email && (
-              <p className="text-[var(--color-danger)] text-xs mt-1.5 animate-fade-in">
-                {errors.email}
-              </p>
-            )}
+            
+            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black text-white leading-none tracking-tight mb-4 sm:mb-6">
+              Debug the <br />
+              <span className="gradient-text italic">Impossible</span> <br />
+              Today.
+            </h1>
+            
+            <p className="text-[var(--color-text-secondary)] text-sm sm:text-base max-w-sm font-medium leading-relaxed">
+              Access the most advanced debugging infrastructure ever built for professional engineering teams.
+            </p>
           </div>
 
-          {/* Password Field */}
-          <div>
-            <label
-              htmlFor="login-password"
-              className="block text-xs font-medium text-[var(--color-text-secondary)] mb-1.5"
-            >
-              Password
-            </label>
-            <div className="relative">
-              <Lock
-                size={16}
-                className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[var(--color-text-muted)]"
-              />
-              <input
-                id="login-password"
-                type={showPassword ? "text" : "password"}
-                name="password"
-                placeholder="Enter your password"
-                value={formData.password}
-                onChange={handleChange}
-                onBlur={handleBlur}
-                autoComplete="current-password"
-                className={`w-full bg-[var(--color-bg-input)] border rounded-xl pl-10 pr-12 py-3 text-sm text-[var(--color-text-primary)] placeholder:text-[var(--color-text-disabled)] outline-none transition-all duration-200 focus:ring-2 ${
-                  errors.password
-                    ? "border-[var(--color-danger)] focus:ring-[var(--color-danger)]/30"
-                    : "border-[var(--color-border-subtle)] focus:border-[var(--color-accent)] focus:ring-[var(--color-accent)]/20"
-                }`}
-              />
+          {/* Feature grid */}
+          <div className="grid grid-cols-2 gap-y-4 sm:gap-y-6 brand-element">
+            {[
+              { icon: Terminal, label: "Live Runtime" },
+              { icon: Zap, label: "Instant Sync" },
+              { icon: Shield, label: "Secure Vault" },
+              { icon: Fingerprint, label: "Biometric ID" }
+            ].map((item, i) => (
+              <div key={i} className="flex items-center gap-3 group cursor-default">
+                <div className="w-8 h-8 rounded-full bg-white/5 border border-white/5 flex items-center justify-center transition-all duration-300 group-hover:border-[var(--color-accent)]/50 group-hover:bg-[var(--color-accent)]/10">
+                  <item.icon size={14} className="text-[var(--color-text-muted)] group-hover:text-[var(--color-accent)] transition-colors" />
+                </div>
+                <span className="text-[10px] font-black uppercase tracking-widest text-[var(--color-text-muted)] group-hover:text-white transition-colors">{item.label}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Right Panel: Form */}
+      <div className="bg-[var(--color-bg-primary)] flex items-center justify-center p-4 sm:p-6 lg:p-12 relative overflow-hidden min-h-screen lg:min-h-0">
+        <div className="form-card w-full max-w-md" ref={formRef}>
+          {/* Mobile Logo — visible only when brand panel is hidden */}
+          <div className="lg:hidden flex items-center gap-3 mb-8 form-element justify-center">
+            <div className="w-9 h-9 rounded-lg overflow-hidden glass p-1.5 border-white/5">
+              <img src={Logo} alt="ZeroBugX" className="w-full h-full object-contain" />
+            </div>
+            <span className="text-base font-black tracking-tighter text-white uppercase italic">ZeroBugX</span>
+          </div>
+
+          <div className="form-element mb-8 sm:mb-12 text-center lg:text-left">
+            <h2 className="text-3xl sm:text-4xl font-black text-white tracking-tighter mb-4">Identify</h2>
+            <div className="w-12 h-1 bg-[var(--color-accent)] rounded-full mx-auto lg:mx-0" />
+          </div>
+
+          <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6" noValidate>
+            <div className="form-element space-y-1.5 sm:space-y-2">
+              <label className="text-[9px] sm:text-[10px] font-black uppercase tracking-[0.3em] text-[var(--color-text-muted)] ml-1">Secure E-Mail</label>
+              <div className="relative group/input">
+                <Mail size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-[var(--color-text-disabled)] group-focus-within/input:text-[var(--color-accent)] transition-all duration-300" />
+                <input
+                  type="email"
+                  name="email"
+                  placeholder="AUTHORITY@ZEROBUGX.COM"
+                  value={formData.email}
+                  onChange={handleChange}
+                  className={`w-full bg-[var(--color-bg-input)] border rounded-2xl pl-12 pr-4 py-3.5 sm:py-4 text-xs font-bold tracking-widest text-white transition-all duration-500 outline-none uppercase ${
+                    errors.email 
+                      ? "border-[var(--color-danger)]/50 focus:border-[var(--color-danger)]" 
+                      : "border-white/5 focus:border-[var(--color-accent)] focus:ring-4 focus:ring-[var(--color-accent)]/10"
+                  }`}
+                />
+              </div>
+              {errors.email && <p className="text-[var(--color-danger)] text-[9px] font-black uppercase tracking-widest ml-1">{errors.email}</p>}
+            </div>
+
+            <div className="form-element space-y-1.5 sm:space-y-2">
+              <div className="flex justify-between items-center px-1">
+                <label className="text-[9px] sm:text-[10px] font-black uppercase tracking-[0.3em] text-[var(--color-text-muted)]">Access Key</label>
+                <button type="button" className="text-[8px] font-black uppercase tracking-widest text-[var(--color-accent)] hover:text-white transition-colors">
+                  Lost Key?
+                </button>
+              </div>
+              <div className="relative group/input">
+                <Lock size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-[var(--color-text-disabled)] group-focus-within/input:text-[var(--color-accent)] transition-all duration-300" />
+                <input
+                  type={showPassword ? "text" : "password"}
+                  name="password"
+                  placeholder="••••••••"
+                  value={formData.password}
+                  onChange={handleChange}
+                  className={`w-full bg-[var(--color-bg-input)] border rounded-2xl pl-12 pr-12 py-3.5 sm:py-4 text-xs font-bold tracking-widest text-white transition-all duration-500 outline-none ${
+                    errors.password 
+                      ? "border-[var(--color-danger)]/50 focus:border-[var(--color-danger)]" 
+                      : "border-white/5 focus:border-[var(--color-accent)] focus:ring-4 focus:ring-[var(--color-accent)]/10"
+                  }`}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-[var(--color-text-disabled)] hover:text-[var(--color-accent)] transition-colors"
+                >
+                  {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                </button>
+              </div>
+              {errors.password && <p className="text-[var(--color-danger)] text-[9px] font-black uppercase tracking-widest ml-1">{errors.password}</p>}
+            </div>
+
+            <div className="form-element mt-6 sm:mt-8">
               <button
-                type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3.5 top-1/2 -translate-y-1/2 text-[var(--color-text-muted)] hover:text-[var(--color-accent)] transition-colors p-1"
-                aria-label={showPassword ? "Hide password" : "Show password"}
+                type="submit"
+                disabled={isSubmitting}
+                className="w-full py-4 sm:py-5 bg-[var(--color-accent)] hover:bg-[var(--color-accent-hover)] text-white rounded-2xl font-black text-[10px] sm:text-[11px] uppercase tracking-[0.3em] sm:tracking-[0.4em] shadow-2xl shadow-[var(--color-accent)]/20 transition-all duration-500 hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 flex items-center justify-center gap-3 cursor-pointer"
               >
-                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                {isSubmitting ? (
+                  <Loader2 size={18} className="animate-spin" />
+                ) : (
+                  <>
+                    <span>Initialize</span>
+                    <ArrowRight size={18} />
+                  </>
+                )}
               </button>
             </div>
-            {errors.password && (
-              <p className="text-[var(--color-danger)] text-xs mt-1.5 animate-fade-in">
-                {errors.password}
-              </p>
-            )}
+          </form>
+
+          <div className="mt-8 sm:mt-12 form-element text-center">
+            <p className="text-[var(--color-text-muted)] text-[9px] font-black uppercase tracking-[0.3em]">
+              New Operative?{" "}
+              <Link to="/signup" className="text-white hover:text-[var(--color-accent)] transition-all duration-300 underline underline-offset-8 decoration-[var(--color-accent)]/20 hover:decoration-[var(--color-accent)]">
+                ENROLL NOW
+              </Link>
+            </p>
           </div>
-
-          {/* Submit Button */}
-          <button
-            type="submit"
-            disabled={isSubmitting}
-            className="w-full py-3.5 mt-2 bg-[var(--color-accent)] hover:bg-[var(--color-accent-hover)] text-white rounded-xl font-semibold text-sm shadow-lg shadow-[var(--color-accent)]/20 transition-all duration-200 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 cursor-pointer"
-          >
-            {isSubmitting ? (
-              <>
-                <Loader2 size={18} className="animate-spin" />
-                <span>Signing in...</span>
-              </>
-            ) : (
-              <>
-                <span>Sign In</span>
-                <ArrowRight size={18} />
-              </>
-            )}
-          </button>
-        </form>
-
-        {/* Footer */}
-        <p className="text-center text-[var(--color-text-muted)] text-sm mt-6">
-          Don&apos;t have an account?{" "}
-          <Link
-            to="/signup"
-            className="text-[var(--color-accent)] hover:text-[var(--color-accent-hover)] font-semibold transition-colors"
-          >
-            Create one
-          </Link>
-        </p>
+        </div>
       </div>
     </div>
   );

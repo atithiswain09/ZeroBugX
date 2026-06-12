@@ -24,15 +24,16 @@ export default function ReviewPage() {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  const handleSend = async () => {
-    if (!prompt.trim()) {
+  const handleSend = async (customPrompt) => {
+    const activePrompt = typeof customPrompt === "string" ? customPrompt : prompt;
+    if (!activePrompt.trim()) {
       toast.error("Please enter a prompt first.");
       return;
     }
 
     setIsLoading(true);
     try {
-      const responseData = await sendPrompt({ prompt: prompt.trim(), code });
+      const responseData = await sendPrompt({ prompt: activePrompt.trim(), code });
       setData(responseData);
       // Automatically switch to review tab on mobile after sending
       if (!isLargeScreen) setActiveTab("review");
@@ -116,7 +117,15 @@ export default function ReviewPage() {
             )}
             
             {(isLargeScreen || activeTab === "review") && (
-              <Response data={data} loading={isLoading} />
+              <Response 
+                data={data} 
+                loading={isLoading} 
+                prompt={prompt}
+                onSuggest={(suggestion) => {
+                  setPrompt(suggestion);
+                  handleSend(suggestion);
+                }}
+              />
             )}
           </div>
         </div>

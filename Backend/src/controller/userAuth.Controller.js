@@ -1,5 +1,4 @@
 const User = require("../models/userAuth.model");
-const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 
 // ─── Cookie Configuration ───────────────────────────────────────
@@ -43,13 +42,10 @@ const SignUp = async (req, res) => {
       });
     }
 
-    // Hash password with bcrypt (12 salt rounds for production-grade security)
-    const hashedPassword = await bcrypt.hash(password, 12);
-
     const user = await User.create({
       username,
       email,
-      password: hashedPassword,
+      password,
     });
 
     const token = generateToken(user);
@@ -100,7 +96,7 @@ const Login = async (req, res) => {
       });
     }
 
-    const isMatch = await bcrypt.compare(password, user.password);
+    const isMatch = await user.comparePassword(password);
     if (!isMatch) {
       return res.status(401).json({
         success: false,

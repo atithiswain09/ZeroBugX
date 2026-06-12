@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const bcrypt = require("bcrypt");
 
 const userSchema = new mongoose.Schema(
   {
@@ -32,6 +33,22 @@ const userSchema = new mongoose.Schema(
     timestamps: true, // Adds createdAt and updatedAt
   }
 );
+
+// Hash password with bcrypt before saving
+userSchema.pre("save", async function (next) {
+  if (!this.isModified("password")) return next();
+  try {
+    this.password = await bcrypt.hash(this.password, 12);
+    next();
+  } catch (error) {
+    next(error);
+  }
+});
+
+// Compare password helper method
+userSchema.methods.comparePassword = async function (candidatePassword) {
+  return bcrypt.compare(candidatePassword, this.password);
+};
 
 // Ensure password is never returned by default in queries
 userSchema.methods.toJSON = function () {

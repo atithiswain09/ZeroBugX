@@ -352,21 +352,36 @@ export default function Response({ data, loading }) {
                 <span className="w-1.5 h-1.5 rounded-full bg-[var(--color-text-disabled)] animate-bounce" style={{ animationDelay: '0.4s' }} />
               </div>
             </div>
-            {/* Shimmer skeleton */}
-            <div className="w-full space-y-4 mt-6 px-4">
-              {[100, 85, 95, 70].map((w, i) => (
-                <div
-                  key={i}
-                  className="h-2 rounded-full animate-shimmer"
-                  style={{
-                    width: `${w}%`,
-                    animationDelay: `${i * 0.15}s`,
-                    background:
-                      "linear-gradient(90deg, #161b22 0%, #1f2937 50%, #161b22 100%)",
-                    backgroundSize: "200% 100%",
-                  }}
-                />
-              ))}
+            {/* Document Skeleton */}
+            <div className="w-full mt-8 space-y-6 px-1 sm:px-2">
+              {/* Header Skeleton */}
+              <div className="space-y-3">
+                <div className="h-4 sm:h-5 rounded bg-gradient-to-r from-[var(--color-border-subtle)] to-[var(--color-bg-elevated)] animate-pulse w-3/4" />
+                <div className="h-3 sm:h-4 rounded bg-gradient-to-r from-[var(--color-border-subtle)] to-[var(--color-bg-elevated)] animate-pulse w-1/2" />
+              </div>
+
+              {/* Code Block Skeleton */}
+              <div className="w-full rounded-xl bg-black/40 border border-white/5 p-4 space-y-2">
+                <div className="h-3 rounded bg-[var(--color-border-subtle)] animate-pulse w-full opacity-50" />
+                <div className="h-3 rounded bg-[var(--color-border-subtle)] animate-pulse w-5/6 opacity-50" />
+                <div className="h-3 rounded bg-[var(--color-border-subtle)] animate-pulse w-4/6 opacity-50" />
+              </div>
+
+              {/* Bullet Points Skeleton */}
+              <div className="space-y-3 pl-2">
+                <div className="flex items-center gap-3">
+                  <div className="w-2 h-2 rounded-full bg-[var(--color-accent)]/50 animate-pulse" />
+                  <div className="h-3 rounded bg-[var(--color-border-subtle)] animate-pulse w-[85%]" />
+                </div>
+                <div className="flex items-center gap-3">
+                  <div className="w-2 h-2 rounded-full bg-[var(--color-accent)]/50 animate-pulse" />
+                  <div className="h-3 rounded bg-[var(--color-border-subtle)] animate-pulse w-[70%]" />
+                </div>
+                <div className="flex items-center gap-3">
+                  <div className="w-2 h-2 rounded-full bg-[var(--color-accent)]/50 animate-pulse" />
+                  <div className="h-3 rounded bg-[var(--color-border-subtle)] animate-pulse w-[90%]" />
+                </div>
+              </div>
             </div>
           </div>
         ) : data?.response ? (

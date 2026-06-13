@@ -8,12 +8,34 @@ import toast from "react-hot-toast";
 import { Settings2, Code, Layout } from "lucide-react";
 
 export default function ReviewPage() {
-  const [code, setCode] = useState("");
-  const [prompt, setPrompt] = useState("");
-  const [data, setData] = useState(null);
+  const [code, setCode] = useState(() => localStorage.getItem("zerobugx_code") || "");
+  const [prompt, setPrompt] = useState(() => localStorage.getItem("zerobugx_prompt") || "");
+  const [data, setData] = useState(() => {
+    const savedData = localStorage.getItem("zerobugx_response");
+    return savedData ? JSON.parse(savedData) : null;
+  });
   const [isLoading, setIsLoading] = useState(false);
   const [activeTab, setActiveTab] = useState("config"); // "config", "code", "review"
   const [isLargeScreen, setIsLargeScreen] = useState(false);
+
+  // Persist code input
+  useEffect(() => {
+    localStorage.setItem("zerobugx_code", code);
+  }, [code]);
+
+  // Persist prompt input
+  useEffect(() => {
+    localStorage.setItem("zerobugx_prompt", prompt);
+  }, [prompt]);
+
+  // Persist AI response output
+  useEffect(() => {
+    if (data) {
+      localStorage.setItem("zerobugx_response", JSON.stringify(data));
+    } else {
+      localStorage.removeItem("zerobugx_response");
+    }
+  }, [data]);
 
   useEffect(() => {
     const handleResize = () => {

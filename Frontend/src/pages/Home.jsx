@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { useRef, useEffect, useContext } from "react";
 import gsap from "gsap";
-import { ArrowRight, Code2, Zap, Shield, Sparkles, Terminal, Cpu, Braces } from "lucide-react";
+import { ArrowRight, Zap, Shield, Sparkles, Terminal, Cpu, Braces } from "lucide-react";
 import { AuthContext } from "../context/AuthContext";
 
 export default function HomePage() {
@@ -49,12 +49,6 @@ export default function HomePage() {
   }, []);
 
   const features = [
-    {
-      icon: Code2,
-      title: "Smart Review",
-      desc: "Deep analysis for logical bugs, performance bottlenecks, and pattern violations.",
-      color: "var(--color-accent)",
-    },
     {
       icon: Zap,
       title: "Instant Results",
@@ -153,7 +147,7 @@ export default function HomePage() {
 
       {/* Feature Cards Section */}
       <div className="relative z-10 mt-16 sm:mt-24 md:mt-32 w-full max-w-6xl px-4 sm:px-6">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {features.map((f, i) => (
             <div
               key={i}
